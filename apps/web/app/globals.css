@@ -1,0 +1,74 @@
+﻿/*
+ * PSG1 Demo App — globals.css
+ * ===========================
+ * YOUR project only needs: @import "@psg1/styles/psg1.css"
+ * This file is for the demo testbed only.
+ */
+
+@import "./psg1.css";
+
+/* ━━━━━ CSS CUSTOM PROPERTIES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+  --bg:          #0b0f19;
+  --bg-card:     rgba(255,255,255,0.06);
+  --bg-hover:    rgba(255,255,255,0.09);
+  --border:      rgba(255,255,255,0.1);
+  --text:        #e8e8f0;
+  --muted:       rgba(232,232,240,0.55);
+  --accent:      #d4af37;
+  --accent-dim:  rgba(212,175,55,0.35);
+  --green:       #4caf50;
+  --radius:      12px;
+}
+[data-theme="light"] {
+  --bg:#f4f4f8; --bg-card:rgba(0,0,0,0.04); --bg-hover:rgba(0,0,0,0.07);
+  --border:rgba(0,0,0,0.12); --text:#1a1a2e; --muted:rgba(26,26,46,0.55);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5}
+
+/* ━━━━━ DEMO LAYOUT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.demo-root{display:grid;grid-template-rows:auto 1fr;grid-template-columns:1fr 260px;grid-template-areas:"header header" "main log";min-height:100dvh;max-width:1100px;margin:0 auto;padding:0 12px 80px}
+.demo-header{grid-area:header;display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.demo-header__brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.demo-header__title{font-size:18px;font-weight:800;letter-spacing:0.06em;color:var(--accent)}
+.demo-tabs{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+.demo-tab{padding:6px 18px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.demo-tab:hover,.demo-tab--active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.demo-header__actions{margin-left:auto}
+.demo-main{grid-area:main;overflow-y:auto;padding:20px 0;max-height:calc(100dvh - 80px)}
+.demo-log{grid-area:log;border-left:1px solid var(--border);padding:16px 0 16px 16px;overflow-y:auto;max-height:calc(100dvh - 80px)}
+.demo-log__title{font-size:9px;font-weight:800;letter-spacing:0.18em;color:var(--accent);margin-bottom:10px;text-transform:uppercase}
+.demo-log__entry{font-size:11px;font-family:monospace;color:var(--muted);padding:3px 0;border-bottom:1px solid var(--border);word-break:break-all}
+.demo-section{display:flex;flex-direction:column;gap:16px}
+.demo-section h2{font-size:18px;font-weight:700}
+.demo-hint{font-size:13px;color:var(--muted);background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+.demo-hint kbd{display:inline-block;background:var(--bg-hover);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;font-family:monospace;color:var(--accent)}
+.demo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.demo-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);cursor:pointer;transition:background .15s,border-color .15s;text-align:left}
+.demo-card:hover{background:var(--bg-hover);border-color:var(--accent-dim)}
+.demo-card__title{font-size:14px;font-weight:700}
+.demo-card__sub{font-size:12px;color:var(--muted)}
+.demo-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.demo-btn{padding:8px 20px;border:1px solid var(--border);border-radius:20px;background:var(--bg-card);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s}
+.demo-btn:hover{background:var(--bg-hover);border-color:var(--accent-dim)}
+.demo-btn:disabled{opacity:.4;cursor:not-allowed}
+.demo-btn--primary{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.demo-btn--primary:hover{background:rgba(212,175,55,.5)}
+.demo-field{display:flex;flex-direction:column;gap:6px}
+.demo-field label{font-size:12px;color:var(--muted)}
+.demo-input{width:100%;max-width:360px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);font-size:14px;outline:none;transition:border-color .15s}
+.demo-input:focus{border-color:var(--accent)}
+.demo-profile{display:flex;gap:20px;align-items:flex-start;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+.demo-avatar{width:64px;height:64px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent);flex-shrink:0}
+.demo-leaderboard-row{display:flex;align-items:center;gap:16px;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);cursor:pointer;transition:background .15s;text-align:left}
+.demo-leaderboard-row:hover{background:var(--bg-hover)}
+.demo-rank{font-size:12px;color:var(--muted);width:32px}
+.demo-name{flex:1;font-weight:600}
+.demo-wins{font-size:13px;color:var(--green);font-weight:700}
+/* app-shell__main = the scrollable content zone — D-pad / R-stick navigates inside */
+.app-shell__main{/* your game uses this class; required by gamepad-nav.ts */}
+@media(max-width:640px){
+  .demo-root{grid-template-columns:1fr;grid-template-areas:"header" "main"}
+  .demo-log{display:none}
+}
