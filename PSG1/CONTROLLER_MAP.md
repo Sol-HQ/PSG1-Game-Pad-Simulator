@@ -1,60 +1,79 @@
-# PSG1 Controller Map — RPS v2
+# PSG1 Controller Map
 
 ## Standard Gamepad API Mapping
 
 The PSG1 exposes a standard gamepad via the Web Gamepad API (`navigator.getGamepads()`).
 Chrome's Android WebView supports this natively — no plugins needed.
 
-## Button Index Reference
+## ⚠️ Non-Standard Face Button Layout
 
-| Index | PSG1 Button | Standard Name | RPS Action |
-|-------|-------------|---------------|------------|
-| 0 | A (bottom face) | Cross / A | Confirm / Submit |
-| 1 | B (right face) | Circle / B | Cancel / Back |
-| 2 | X (left face) | Square / X | (reserved) |
-| 3 | Y (top face) | Triangle / Y | (reserved) |
-| 4 | L shoulder | L1 / LB | Previous Tab |
-| 5 | R shoulder | R1 / RB | Next Tab |
-| 6 | — | L2 / LT | N/A (PSG1 has no L2) |
-| 7 | — | R2 / RT | N/A (PSG1 has no R2) |
-| 8 | Select | Back / Select | (reserved) |
-| 9 | Start | Start / Menu | (reserved) |
-| 10 | L3 | Left stick press | (unused) |
-| 11 | R3 | Right stick press | (unused) |
-| 12 | D-pad Up | DPad Up | Paper |
-| 13 | D-pad Down | DPad Down | Next item / Scroll down |
-| 14 | D-pad Left | DPad Left | Rock |
-| 15 | D-pad Right | DPad Right | Scissors |
+The PSG1 face buttons are **physically swapped** vs Xbox/PlayStation convention:
+
+| Index | PSG1 Physical | Standard Equivalent | PSG1 Action |
+|-------|--------------|---------------------|-------------|
+| **0** | **B** (bottom face) | Cross / A on Xbox | **Cancel / Back** |
+| **1** | **A** (right face) | Circle / B on Xbox | **Confirm / Click** |
+| 2 | Y (left face) | Square / X | Refresh / close modal |
+| 3 | X (top face) | Triangle / Y | Reserved |
+
+> **Why?** The PSG1's physical button positions differ from Xbox layout.
+> The code maps by physical position, not by label chromed onto the housing.
+> On Xbox: btn0=A(bottom). On PSG1: btn0=B(bottom), btn1=A(right).
+> This was an intentional mapping decision; see `useGamepad.ts` comments.
+
+## Full Button Index Reference
+
+| Index | PSG1 Button | Standard Gamepad API Name | Action |
+|-------|-------------|---------------------------|--------|
+| 0 | B (bottom face) | Button 0 | Cancel / Back / close modal |
+| 1 | A (right face) | Button 1 | Confirm / click / open VK |
+| 2 | Y (left face) | Button 2 | Refresh (close modal first) |
+| 3 | X (top face) | Button 3 | Reserved (no-op) |
+| 4 | L shoulder | L1 / LB | Cycle header left |
+| 5 | R shoulder | R1 / RB | Cycle header right |
+| 6 | — | L2 / LT | N/A (PSG1 has no L2 trigger) |
+| 7 | — | R2 / RT | N/A (PSG1 has no R2 trigger) |
+| 8 | Select | Back / Select | Dispatch "select" (e.g. wallet) |
+| 9 | Start | Start / Menu | Dispatch "start" (e.g. mode gate) |
+| 10 | L3 | Left stick press | Dispatch "l3" (reserved) |
+| 11 | R3 | Right stick press | Secondary confirm (same as A) |
+| 12 | D-pad Up | DPad Up | Spatial nav up |
+| 13 | D-pad Down | DPad Down | Spatial nav down |
+| 14 | D-pad Left | DPad Left | Spatial nav left |
+| 15 | D-pad Right | DPad Right | Spatial nav right |
+| 16 | Home | Home / Guide | Dispatch "home" (app menu, reserved) |
 
 ## Analog Sticks
 
-### Left Stick — Virtual Pointer (✊)
-Deflect the left stick to move a virtual rock-fist cursor across the screen.
-Press **A** while the cursor is visible to click the element underneath.
+### Left Stick — Virtual Pointer (moju cursor)
+Deflect the left stick to move a floating moju character sprite across the screen.
+Press **A** (btn1) while the cursor is visible to click the element underneath.
 - Speed: 6 CSS px/frame at full deflection
 - Deadzone: 0.25
+- Clamped 16px from viewport edges (cursor never bleeds into browser chrome)
 - Auto-hides after 3 seconds of inactivity
 
-### Right Stick — Scroll + Tab Switch
+### Right Stick — Scroll + Spatial Nav
 | Axis | Direction | Action |
 |------|-----------|--------|
-| Y | Up / Down | Scroll page up / down |
-| X | Left | Previous tab |
-| X | Right | Next tab |
-- Scroll speed: 12 px/frame at full deflection
-- Tab switch is edge-detected (fires once per deflection, not on hold)
+| Y | Up / Down | Continuous scroll (speed scales with deflection × 4 px/frame) |
+| X | Left / Right | Spatial nav left/right (same as D-pad, single-fire per deflection) |
+- Deadzone: 0.25
+- R-stick X fires once per deflection (edge detection prevents hold-repeat)
 
 ## D-pad Layout
 
 ```
-            Paper
-             [UP]
-              ^
-  Rock     <     >    Scissors
-  [LEFT]      v       [RIGHT]
-            [DOWN]
-          Next Item
+              ↑ Nav Up
+               ^
+  ← Nav Left <   > Nav Right →
+               v
+              ↓ Nav Down
 ```
+
+D-pad navigates within the **content zone** (`.app-shell__main` by default).
+L1/R1 handles the **header zone** (elements marked `.gp-cycleable`).
+Pressing D-pad Up from the top of the content zone jumps into the header.
 
 ## Edge Detection
 
