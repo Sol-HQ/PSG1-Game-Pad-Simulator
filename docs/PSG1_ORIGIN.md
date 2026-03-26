@@ -6,38 +6,76 @@
 
 ---
 
-## 1. What Is PSG1?
+## 1. What Is the PSG1?
 
-**PSG1** stands for **PlaySolana Gamepad 1** — a physical Bluetooth/USB gamepad controller
-produced by **I.O.** (iozone.dev), designed specifically for Solana gaming on Android.
+**PSG1** is a **handheld gaming console** made by **Play Solana** — the first gaming console
+on Solana. Think Gameboy-style form factor. It is a standalone device, not a phone accessory
+or PC peripheral.
 
-The PSG1 is not a generic controller. Key physical facts:
+- **Made by:** [Play Solana](https://www.playsolana.com/)
+- **Developers portal:** [developers.playsolana.com](https://developers.playsolana.com/)
+- **SDK:** [PlaySolana-Unity.SDK](https://github.com/playsolana/PlaySolana.Unity-SDK) (Unity New Input System compatible)
+- **Submit games:** [PlayGate](https://playgate.playsolana.com/)
+- **Scale:** 10,000+ devices sold — 15+ Solana communities — 15M+ social interactions
 
-- **No L2/R2 triggers** — only L1/R1 shoulder buttons
-- **Face buttons are physically re-positioned** vs Xbox/PlayStation convention  
-  (A is on the right face = Gamepad API button index **1**, B is on the bottom face = index **0**)
-- **Two analog sticks** — left stick used as virtual pointer, right stick for scroll/nav
-- **D-pad** — standard 4-direction
-- **Select / Start / Home** buttons present
-- **Multi-touch screen on device** — gamepad is additive, does not replace touch
-- **Plugs into Solana mobile dApps** via the standard Web Gamepad API (`navigator.getGamepads()`)
-  — Chrome's Android WebView supports this natively, no plugins needed
+### PSG1 Hardware Specs (official)
 
-The PSG1 was designed to plug into **Solana Seeker** (Solana's first native Android gaming phone)
-via the [Seeker device companion programs](https://solanamobile.com/seeker) and through
-[Solana dApp Store](https://dappstore.app) distributed games.
+| Spec | Value |
+|------|-------|
+| Screen | 3.92″ diagonal |
+| Resolution | 1240 × 1080 |
+| Touch | Multi-touch capacitive |
+| Triggers | **No L2 / R2** — shoulder buttons only (L / R) |
+| SDK internals | Firmware mimics standard Android gamepad with D-pad buttons |
+
+### PSG1 Physical Button Layout (official — developers.playsolana.com/psg1-keys)
+
+| Button | Position | Official Purpose |
+|--------|----------|-----------------|
+| **A** | Right face | Confirm, interact, talk |
+| **B** | Bottom face | Jump, Cancel, Back — *most accessible button* |
+| **X** | Top face | Secondary abilities, menus, items |
+| **Y** | Left face | Attack, shoot, run/grab |
+| D-Pad | — | Menu navigation / directional movement |
+| Left Stick | — | Primary movement / directional control |
+| Right Stick | — | Camera / cursor / secondary movement |
+| Menu / Start | — | Pause / system menus |
+| Select / View | — | Secondary menus / utility |
+| L Button | Left shoulder | Quick actions / modifiers |
+| R Button | Right shoulder | Quick actions / modifiers |
+
+> **Buttons NOT accessible via SDK:** Volume Up, Volume Down, Fingerprint, Home button.
 
 ---
 
-## 2. Why This Simulator Exists
+## 2. What Is PADSIM PSG1?
+
+**PADSIM PSG1** is Sol-HQ's creation — a **web-based browser simulator** that replicates
+PSG1 hardware input behavior for building PSG1-compatible web/WebView games without needing
+a physical device.
+
+This is **not** the official Play Solana Unity Simulator (that one lives inside the Unity Editor
+and simulates the PSG1 screen dimensions). PADSIM PSG1 is a completely separate tool built by
+Sol-HQ for **React/Next.js web game development** targeting the PSG1.
+
+Add `?gp` to any URL and the controller overlay appears. Every button and stick fires the exact
+same events that real PSG1 hardware would trigger through the Web Gamepad API.
+
+The official Play Solana development path is **Unity + PlaySolana-Unity.SDK**. PADSIM PSG1
+enables a **web/WebView track** — for teams building browser-based Solana games that run on
+the PSG1's WebView or any modern mobile browser.
+
+---
+
+## 3. Why PADSIM PSG1 Exists
 
 ### The Problem
 
 When building [R.P.S. v2](https://github.com/Sol-HQ/R.P.S.v.2) — a Solana on-chain Rock/Paper/Scissors
-game — we needed full PSG1 gamepad support **before any physical hardware was available**.
+game targeting web/WebView distribution — we needed full PSG1 gamepad support **before
+any physical hardware was in our hands**.
 
-Hardware approval timelines on Seeker were unknown. We couldn't stop development and wait.
-We needed to:
+We couldn't stop active development and wait for a device to ship. We needed to:
 1. Wire up all gamepad navigation inside the active game
 2. Test every button and stick behavior before a PSG1 was in our hands
 3. Let future devs who don't have the hardware yet still build PSG1-ready games
@@ -54,7 +92,7 @@ so any Solana game dev can drop it into their project without taking RPS with th
 
 ---
 
-## 3. Where the Code Came From
+## 4. Where the Code Came From
 
 | File | Born In | Extracted To |
 |------|---------|--------------|
@@ -80,7 +118,7 @@ This was the single biggest portability improvement over the RPS original.
 
 ---
 
-## 4. Architecture Deep Dive
+## 5. Architecture Deep Dive
 
 ### 4.1 The Event Bus
 
@@ -233,7 +271,7 @@ elsewhere on the screen.
 
 ---
 
-## 5. The PSG1 Button Mapping (Non-Standard — Read This)
+## 6. The PSG1 Button Mapping (Non-Standard — Read This)
 
 | Gamepad API Index | Physical Button | PSG1 Action |
 |-------------------|-----------------|-------------|
@@ -257,7 +295,7 @@ The code handles this correctly by mapping by button INDEX, not by letter label.
 
 ---
 
-## 6. Keyboard Shortcuts (Simulator Bridge)
+## 7. Keyboard Shortcuts (Simulator Bridge)
 
 | Key | Simulates |
 |-----|-----------|
@@ -276,7 +314,7 @@ The code handles this correctly by mapping by button INDEX, not by letter label.
 
 ---
 
-## 7. Integration Checklist (What an Agent Needs to Do)
+## 8. Integration Checklist (What an Agent Needs to Do)
 
 To wire PSG1 into a new project, an agent should:
 
@@ -352,7 +390,7 @@ Add `?gp` to any URL. The simulator overlay appears in the bottom-right corner.
 
 ---
 
-## 8. Known Quirks & Caveats
+## 9. Known Quirks & Caveats
 
 ### Wallets / Extension Popups
 When a Phantom/Backpack wallet popup opens in an extension overlay, it is **outside the DOM**.
@@ -381,7 +419,7 @@ button presses will fire twice.
 
 ---
 
-## 9. Next Steps for Full Modularization
+## 10. Next Steps for Full Modularization
 
 The repo is currently at **v0.1.0** — functional but not yet a proper npm package.
 
@@ -420,7 +458,7 @@ The repo is currently at **v0.1.0** — functional but not yet a proper npm pack
 
 ---
 
-## 10. Resources
+## 11. Resources
 
 | Resource | URL |
 |----------|-----|
@@ -436,7 +474,7 @@ The repo is currently at **v0.1.0** — functional but not yet a proper npm pack
 
 ---
 
-## 11. Repo Structure Quick Reference
+## 12. Repo Structure Quick Reference
 
 ```
 PSG1-Game-Pad-Simulator/
@@ -477,7 +515,7 @@ PSG1-Game-Pad-Simulator/
 
 ---
 
-## 12. Commit History (Origin to Extraction)
+## 13. Commit History (Origin to Extraction)
 
 | Commit | Date | What Happened |
 |--------|------|---------------|

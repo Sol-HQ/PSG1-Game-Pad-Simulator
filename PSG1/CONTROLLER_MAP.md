@@ -1,49 +1,84 @@
-# PSG1 Controller Map
+# PSG1 Hardware — Controller Map
 
-## Standard Gamepad API Mapping
+> **PSG1** is a handheld gaming console made by **Play Solana** (playsolana.com) —
+> the first gaming console on Solana. It is NOT a PC peripheral or phone accessory.
+> Games are built with the **PlaySolana-Unity.SDK** and published via **PlayGate**.
+> Source: https://developers.playsolana.com/psg1-keys
 
-The PSG1 exposes a standard gamepad via the Web Gamepad API (`navigator.getGamepads()`).
-Chrome's Android WebView supports this natively — no plugins needed.
+---
 
-## ⚠️ Non-Standard Face Button Layout
+## Physical Device Facts (official, from Play Solana)
 
-The PSG1 face buttons are **physically swapped** vs Xbox/PlayStation convention:
+| Spec | Value |
+|------|-------|
+| Screen | 3.92" diagonal, 1240×1080 resolution |
+| Touch | Multi-touch capacitive |
+| Triggers | **No L2/R2** — shoulder buttons only (L / R) |
+| SDK | PlaySolana-Unity.SDK (Unity New Input System compatible) |
+| Submission | PlayGate — playgate.playsolana.com |
+| SDK internals | Firmware mimics standard Android gamepad with D-pad buttons |
+| Inaccessible | Volume Up/Down, Fingerprint, Home button — NOT in SDK |
 
-| Index | PSG1 Physical | Standard Equivalent | PSG1 Action |
-|-------|--------------|---------------------|-------------|
-| **0** | **B** (bottom face) | Cross / A on Xbox | **Cancel / Back** |
-| **1** | **A** (right face) | Circle / B on Xbox | **Confirm / Click** |
-| 2 | Y (left face) | Square / X | Refresh / close modal |
-| 3 | X (top face) | Triangle / Y | Reserved |
+---
 
-> **Why?** The PSG1's physical button positions differ from Xbox layout.
-> The code maps by physical position, not by label chromed onto the housing.
-> On Xbox: btn0=A(bottom). On PSG1: btn0=B(bottom), btn1=A(right).
-> This was an intentional mapping decision; see `useGamepad.ts` comments.
+## Official Button Layout (from developers.playsolana.com/psg1-keys)
 
-## Full Button Index Reference
+### Face Buttons (Right Side of Device)
 
-| Index | PSG1 Button | Standard Gamepad API Name | Action |
-|-------|-------------|---------------------------|--------|
-| 0 | B (bottom face) | Button 0 | Cancel / Back / close modal |
-| 1 | A (right face) | Button 1 | Confirm / click / open VK |
-| 2 | Y (left face) | Button 2 | Refresh (close modal first) |
-| 3 | X (top face) | Button 3 | Reserved (no-op) |
-| 4 | L shoulder | L1 / LB | Cycle header left |
-| 5 | R shoulder | R1 / RB | Cycle header right |
-| 6 | — | L2 / LT | N/A (PSG1 has no L2 trigger) |
-| 7 | — | R2 / RT | N/A (PSG1 has no R2 trigger) |
-| 8 | Select | Back / Select | Dispatch "select" (e.g. wallet) |
-| 9 | Start | Start / Menu | Dispatch "start" (e.g. mode gate) |
-| 10 | L3 | Left stick press | Dispatch "l3" (reserved) |
-| 11 | R3 | Right stick press | Secondary confirm (same as A) |
-| 12 | D-pad Up | DPad Up | Spatial nav up |
-| 13 | D-pad Down | DPad Down | Spatial nav down |
-| 14 | D-pad Left | DPad Left | Spatial nav left |
-| 15 | D-pad Right | DPad Right | Spatial nav right |
-| 16 | Home | Home / Guide | Dispatch "home" (app menu, reserved) |
+| PSG1 Button | Physical Position | Official Purpose |
+|-------------|-------------------|------------------|
+| **A** | Right face | Confirm, interact, talk |
+| **B** | Bottom face | Jump, Cancel, Back — **most accessible button** |
+| **X** | Top face | Secondary abilities, menus, items |
+| **Y** | Left face | Attack, shoot, run, grab |
 
-## Analog Sticks
+### All Physical Inputs
+
+| Input | Description |
+|-------|-------------|
+| D-Pad (Up/Down/Left/Right) | Directional navigation, menus, movement |
+| Left Analog Stick | Primary movement / directional control |
+| Right Analog Stick | Camera control / secondary movement / cursor |
+| Menu / Start | Pause menus, system menus, in-game options |
+| Select / View | Secondary menus, overlays, utility actions |
+| L Button | Left shoulder — quick actions or modifiers |
+| R Button | Right shoulder — quick actions or modifiers |
+
+---
+
+## PADSIM PSG1 — Web Gamepad API Mapping
+
+> **PADSIM PSG1** is Sol-HQ's web-based browser simulator for building PSG1-compatible
+> web/WebView games without physical hardware. The mapping below reflects how the
+> PSG1 firmware presents to a browser via standard Web Gamepad API `navigator.getGamepads()`.
+
+> **Note on face button indices:** Standard Gamepad API (Xbox layout) maps btn0=A(bottom).
+> PSG1 maps btn0=B(bottom) and btn1=A(right) — matching physical position, not label order.
+> This is an intentional mapping; see comments in `useGamepad.ts`.
+
+| Index | PSG1 Button | Physical Position | PADSIM Action |
+|-------|-------------|-------------------|---------------|
+| **1** | **A** | Right face | Confirm / click / open VK |
+| **0** | **B** | Bottom face | Cancel / Back / close modal |
+| **3** | **X** | Top face | Secondary / reserved |
+| **2** | **Y** | Left face | Refresh / close modal |
+| 4 | L Button | Left shoulder | Cycle header left |
+| 5 | R Button | Right shoulder | Cycle header right |
+| 6 | — | (L2 — not present on PSG1) | N/A |
+| 7 | — | (R2 — not present on PSG1) | N/A |
+| 8 | Select / View | Select | Dispatch `select` |
+| 9 | Menu / Start | Start | Dispatch `start` |
+| 10 | L3 | Left stick press | Dispatch `l3` (reserved) |
+| 11 | R3 | Right stick press | Secondary confirm |
+| 12 | D-pad Up | D-pad | Spatial nav up |
+| 13 | D-pad Down | D-pad | Spatial nav down |
+| 14 | D-pad Left | D-pad | Spatial nav left |
+| 15 | D-pad Right | D-pad | Spatial nav right |
+| 16 | Home | (Home — not in PSG1 SDK) | N/A / reserved |
+
+---
+
+## Analog Sticks (PADSIM PSG1 Behavior)
 
 ### Left Stick — Virtual Pointer (moju cursor)
 Deflect the left stick to move a floating moju character sprite across the screen.
