@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import GameApp from "@/components/GameApp";
 
 export const metadata: Metadata = {
   title: "PSG1 Gamepad Simulator",
@@ -13,7 +14,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" data-theme="dark">
       <head />
       <body>
-        {children}
+        {/* GameApp mounts the gamepad polling loop and loads the PSG1 widget when ?gp is in the URL */}
+        <GameApp>{children}</GameApp>
       </body>
     </html>
   );

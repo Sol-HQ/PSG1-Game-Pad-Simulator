@@ -151,6 +151,17 @@ export function unregisterPsg1Callback(id: string): void {
 /** Reference to the currently active mapper's cleanup fn (one at a time). */
 let _activeCleanup: (() => void) | null = null;
 
+/** The currently installed mapping (null if no mapper is active). */
+let _activeMapping: Psg1Mapping | null = null;
+
+/**
+ * Returns the currently installed mapping, or null if no mapper is active.
+ * Used by the PSG1 settings panel to display the active mapping table.
+ */
+export function getActivePsg1Mapping(): Psg1Mapping | null {
+  return _activeMapping;
+}
+
 /**
  * Install the PSG1 mapper.
  *
@@ -189,6 +200,8 @@ export function installPsg1Mapper(mapping: Psg1Mapping): () => void {
   const bus = gamepadBus;
   if (!bus) return () => {};
 
+  _activeMapping = mapping;
+
   const handler = (e: Event) => {
     const action = (e as CustomEvent<GamepadAction>).detail;
     const adapter = mapping.actions[action];
@@ -201,6 +214,7 @@ export function installPsg1Mapper(mapping: Psg1Mapping): () => void {
   const uninstall = () => {
     bus.removeEventListener("gamepad-action", handler);
     if (_activeCleanup === uninstall) _activeCleanup = null;
+    if (_activeMapping === mapping) _activeMapping = null;
   };
 
   _activeCleanup = uninstall;

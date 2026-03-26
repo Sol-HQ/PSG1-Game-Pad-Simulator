@@ -115,12 +115,247 @@
   bottom: 12px;
   right: 12px;
   z-index: 99998;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
   font-family: system-ui, sans-serif;
   -webkit-user-select: none;
   user-select: none;
 }
 
-.gp-sim--collapsed { bottom: 12px; right: 12px; }
+.gp-sim--collapsed { gap: 0; }
+
+/* ── Settings panel ──────────────────────────────────────────── */
+
+.gp-sim__panel {
+  width: 320px;
+  max-height: 380px;
+  background: rgba(12,12,18,0.97);
+  border: 1.5px solid rgba(212,175,55,0.4);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -2px 20px rgba(0,0,0,0.5), 0 0 16px rgba(212,175,55,0.06);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.gp-sim__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid rgba(212,175,55,0.15);
+  flex-shrink: 0;
+}
+
+.gp-sim__panel-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #e8c547;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(212,175,55,0.3);
+}
+
+.gp-sim__panel-close {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,175,55,0.25);
+  background: transparent;
+  color: rgba(212,175,55,0.5);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.gp-sim__panel-close:hover { background: rgba(212,175,55,0.1); color: #e8c547; }
+
+.gp-sim__panel-tabs {
+  display: flex;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(212,175,55,0.1);
+  flex-shrink: 0;
+}
+
+.gp-sim__panel-tab {
+  padding: 7px 10px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(212,175,55,0.4);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+.gp-sim__panel-tab--active,
+.gp-sim__panel-tab:hover { color: #e8c547; border-bottom-color: #d4af37; }
+
+.gp-sim__panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 14px 14px;
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212,175,55,0.2) transparent;
+}
+
+/* ── Live Log tab ─── */
+.gp-sim__log { display: flex; flex-direction: column; gap: 2px; }
+.gp-sim__log-empty {
+  font-size: 11px;
+  color: rgba(212,175,55,0.3);
+  font-style: italic;
+  padding: 4px 0;
+}
+.gp-sim__log-entry {
+  font-size: 10px;
+  font-family: monospace;
+  color: rgba(200,200,220,0.5);
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  word-break: break-all;
+  line-height: 1.4;
+}
+.gp-sim__log-entry--new { color: #e8c547; }
+
+/* ── Button Map tab ── */
+.gp-sim__ref { display: flex; flex-direction: column; gap: 12px; }
+.gp-sim__ref-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.gp-sim__ref-table th {
+  text-align: left;
+  color: rgba(212,175,55,0.45);
+  font-size: 7.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 800;
+  padding: 0 4px 5px;
+  border-bottom: 1px solid rgba(212,175,55,0.12);
+}
+.gp-sim__ref-table td {
+  padding: 3px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  vertical-align: middle;
+}
+.gp-sim__ref-btn {
+  display: inline-block;
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 9px;
+  color: #e8c547;
+  white-space: nowrap;
+}
+.gp-sim__ref-action { color: rgba(200,200,220,0.6); font-size: 10px; }
+.gp-sim__ref-kbd {
+  display: inline-block;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 9px;
+  font-family: monospace;
+  color: rgba(200,200,220,0.45);
+}
+.gp-sim__ref-mapping {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(212,175,55,0.12);
+}
+.gp-sim__ref-mapping-title {
+  font-size: 8.5px;
+  font-weight: 800;
+  color: rgba(212,175,55,0.55);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* ── Integration guide tab ── */
+.gp-sim__guide { display: flex; flex-direction: column; gap: 10px; }
+.gp-sim__guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.gp-sim__guide-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,175,55,0.35);
+  color: #d4af37;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.gp-sim__guide-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(220,220,240,0.65);
+  margin-bottom: 3px;
+}
+.gp-sim__guide-code {
+  font-size: 8.5px;
+  font-family: monospace;
+  color: rgba(212,175,55,0.55);
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(212,175,55,0.12);
+  border-radius: 5px;
+  padding: 5px 8px;
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+.gp-sim__guide-hint {
+  font-size: 9.5px;
+  color: rgba(200,200,220,0.35);
+  font-style: italic;
+}
+.gp-sim__guide-hint code { color: rgba(212,175,55,0.45); font-size: 9px; }
+
+/* ── Settings toggle button ────────────────────────────────── */
+
+.gp-sim__settings-btn {
+  width: 320px;
+  height: 28px;
+  background: rgba(12,12,18,0.92);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 8px;
+  color: rgba(212,175,55,0.55);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.gp-sim__settings-btn:hover,
+.gp-sim__settings-btn--open {
+  background: rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.5);
+  color: #e8c547;
+}
+
+/* ── Controller wrapper (position: relative for toggle) ──── */
+
+.gp-sim__controller { position: relative; }
 
 .gp-sim__toggle {
   position: absolute;

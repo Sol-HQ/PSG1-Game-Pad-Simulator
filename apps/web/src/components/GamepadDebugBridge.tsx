@@ -1,15 +1,12 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { gamepadBus, type GamepadAction } from "../hooks/useGamepad";
+import { gamepadBus, useGamepadAction, type GamepadAction } from "../hooks/useGamepad";
 import {
-  getFocusablesIn,
   getGpFocused,
-  setGpFocus,
   cycleHeader,
-  getContentContainer,
   spatialNav,
   scrollContent,
   closeModal,
@@ -20,6 +17,7 @@ import {
   openVirtualKeyboard,
   dispatchVkAction,
 } from "./VirtualKeyboard";
+import { getActivePsg1Mapping } from "../lib/psg1-mapper";
 
 /** Pixels per press for left-stick simulator buttons. */
 const CURSOR_STEP = 30;
@@ -29,22 +27,19 @@ const CANCEL_WORDS = /^(cancel|no|close|back|dismiss|nevermind|not now)$/i;
 
 /**
  * Find the nearest visible cancel-type button in the CURRENT context only.
- * When a modal/dialog is open, searches ONLY within it — never behind it.
+ * When a modal/dialog is open, searches ONLY within it â€” never behind it.
  * Never searches document.body to avoid clicking unrelated transaction buttons.
  */
 function findCancelButton(): HTMLElement | null {
-  // If a dialog/modal is open, search ONLY within it.
   const dialog = document.querySelector<HTMLElement>("dialog[open], .modal--open, [role='dialog']");
   if (dialog) {
     for (const btn of dialog.querySelectorAll<HTMLElement>("button")) {
       const text = (btn.textContent ?? "").trim();
       if (CANCEL_WORDS.test(text) && btn.offsetParent !== null) return btn;
     }
-    // No cancel-text match in modal — return null so caller uses closeModal() instead.
     return null;
   }
 
-  // No modal — search only the focused element's immediate section/form.
   const focused = getGpFocused();
   if (focused) {
     const section = focused.closest(".profile-edit, .wallet-panel, .admin-reset, .admin-ban, form, section");
@@ -56,7 +51,6 @@ function findCancelButton(): HTMLElement | null {
     }
   }
 
-  // Never fall through to document.body — too dangerous (can click unrelated tx buttons).
   return null;
 }
 
@@ -70,10 +64,9 @@ function moveCursor(dx: number, dy: number) {
   );
 }
 
-/* ── Shared button press handler ─────────────────────────────── */
+/* â”€â”€ Shared button press handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function pressButton(id: string) {
-  /* If the virtual keyboard is open, route everything to it */
   if (isVirtualKeyboardOpen()) {
     dispatchVkAction(id);
     return;
@@ -82,7 +75,6 @@ function pressButton(id: string) {
   const modal = isModalOpen();
 
   switch (id) {
-    /* Shoulder: header zone cycling */
     case "l1":
       if (!modal) cycleHeader(-1);
       break;
@@ -90,13 +82,11 @@ function pressButton(id: string) {
       if (!modal) cycleHeader(1);
       break;
 
-    /* D-pad: spatial content navigation (L1/R1 handle header cycling) */
     case "up": spatialNav("up"); break;
     case "down": spatialNav("down"); break;
     case "left": spatialNav("left"); break;
     case "right": spatialNav("right"); break;
 
-    /* A: click focused element or open virtual keyboard for text inputs */
     case "a": {
       const focused = getGpFocused();
       if (focused && document.contains(focused)) {
@@ -108,9 +98,7 @@ function pressButton(id: string) {
           break;
         }
         focused.click();
-        // Focus stays on the clicked element — user moves it with D-pad
       } else {
-        // Moju pointer fallback — click element under cursor (matches hardware)
         const cursor = document.querySelector<HTMLElement>(".gamepad-cursor");
         if (cursor && cursor.style.opacity !== "0") {
           const rect = cursor.getBoundingClientRect();
@@ -123,7 +111,6 @@ function pressButton(id: string) {
       break;
     }
 
-    /* B: cancel / back / close modal */
     case "b": {
       const cancel = findCancelButton();
       if (cancel) cancel.click();
@@ -132,36 +119,27 @@ function pressButton(id: string) {
       break;
     }
 
-    /* Y: close modal if open, otherwise dispatch refresh */
     case "y":
       if (modal) closeModal();
       else dispatch("refresh");
       break;
 
-    /* X: reserved (unused) */
     case "x":
       break;
 
-
-    /* Select: wallet connect/disconnect */
     case "select":
       dispatch("select");
       break;
 
-    /* Start: navigate to terms / mode-select gate */
     case "start":
       dispatch("start");
       break;
 
-    /* L3: left stick press (reserved) */
     case "l3": dispatch("l3"); break;
 
-    /* R3: same as A — click focused/hovered. Wallet signing confirm is in
-       the extension popup (outside DOM), so A-only there by nature. */
     case "r3": {
       const focused = document.querySelector<HTMLElement>(".gp-focus");
       if (focused && document.contains(focused)) { focused.click(); break; }
-      // Fall back to moju pointer target
       const cursor = document.querySelector<HTMLElement>(".gamepad-cursor");
       if (cursor && cursor.style.opacity !== "0") {
         const rect = cursor.getBoundingClientRect();
@@ -171,18 +149,15 @@ function pressButton(id: string) {
       break;
     }
 
-    /* Home: Solana logo / app menu (reserved) */
     case "home":
       dispatch("home");
       break;
 
-    /* Left stick: move virtual pointer */
     case "lstick-up": moveCursor(0, -CURSOR_STEP); break;
     case "lstick-down": moveCursor(0, CURSOR_STEP); break;
     case "lstick-left": moveCursor(-CURSOR_STEP, 0); break;
     case "lstick-right": moveCursor(CURSOR_STEP, 0); break;
 
-    /* Right stick: up/down scroll, left/right spatial nav (like D-pad) */
     case "rstick-up": scrollContent("up"); break;
     case "rstick-down": scrollContent("down"); break;
     case "rstick-left": spatialNav("left"); break;
@@ -190,7 +165,7 @@ function pressButton(id: string) {
   }
 }
 
-/* ── Keyboard mapping ──────────────────────────────────────────── */
+/* â”€â”€ Keyboard mapping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const KEY_MAP: Record<string, string> = {
   ArrowUp: "up",
@@ -205,7 +180,6 @@ const KEY_MAP: Record<string, string> = {
   Y: "y",
   "[": "l1",
   "]": "r1",
-
   Tab: "select",
   " ": "start",
   q: "l3",
@@ -216,25 +190,70 @@ const KEY_MAP: Record<string, string> = {
   H: "home",
 };
 
-/* ── Component ─────────────────────────────────────────────────── */
+/* â”€â”€ Settings panel data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+type SettingsPanel = "log" | "map" | "guide";
+
+const BTN_REF: [string, string, string][] = [
+  ["A",         "Confirm / Click",  "Enter"],
+  ["B",         "Back / Cancel",    "âŒ«"],
+  ["X",         "Reserved",         "X"],
+  ["Y",         "Refresh",          "Y"],
+  ["L1",        "â† Cycle tabs",     "["],
+  ["R1",        "â†’ Cycle tabs",     "]"],
+  ["â†‘â†“â†â†’",     "Navigate",         "Arrows"],
+  ["L-Stick",   "Move pointer",     "â€”"],
+  ["R-Stk â†‘â†“", "Scroll",           "â€”"],
+  ["R-Stk â†â†’", "Navigate",         "â€”"],
+  ["Select",    "Wallet",           "Tab"],
+  ["Start",     "Gate / Menu",      "Space"],
+  ["Home",      "App menu",         "H"],
+  ["L3",        "Reserved",         "Q"],
+  ["R3",        "Click cursor",     "E"],
+];
+
+const GUIDE_STEPS: [string, string, string][] = [
+  ["1", "Wrap your app root", "<GameApp>\n  {children}\n</GameApp>"],
+  ["2", "Mark nav tabs", 'className="gp-cycleable"'],
+  ["3", "Mark content zone", 'className="app-shell__main"'],
+  ["4", "React to actions (optional)", "useGamepadAction(action => {\n  if (action === 'confirm') ...\n})"],
+  ["5", "Install a mapper (optional)", "installPsg1Mapper({\n  version: '1',\n  actions: {\n    confirm: {\n      type: 'custom-event',\n      event: 'game:confirm'\n    }\n  }\n})"],
+];
+
+/* â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * PSG1 gamepad simulator overlay + keyboard bridge.
- * Activated by ?gp in the URL. Dynamic-imported — zero bytes in prod.
+ * PSG1 gamepad simulator â€” fixed bottom-right corner widget.
  *
- * Keyboard: ←↑→↓=D-pad, Enter=A, Backspace=B, X=Context, Y=Refresh,
+ * Contains:
+ *  - The physical controller pad (tap buttons or use keyboard shortcuts)
+ *  - "âš™ Map Settings" toggle above the pad
+ *  - Settings panel with three tabs:
+ *      Live Log   â€” real-time stream of every PSG1 action fired
+ *      Button Map â€” default action + keyboard shortcut for every input
+ *      Integrate  â€” copy-paste integration guide for devs
+ *
+ * Keyboard: â†â†‘â†’â†“=D-pad, Enter=A, Backspace=B, X=Context, Y=Refresh,
  * []=L1/R1, Tab=Select, Space=Start, Q/E=L3/R3, H=Home
  */
 export default function GamepadDebugBridge() {
   const [collapsed, setCollapsed] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<SettingsPanel>("log");
+  const [actionLog, setActionLog] = useState<string[]>([]);
   const [flash, setFlash] = useState<string | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout>>();
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
-  // ── Portal into modal dialogs so simulator stays interactive ───────
-  // dialog.showModal() renders in the browser top layer and makes ALL
-  // non-dialog content inert (blocks pointer events).  By portaling the
-  // simulator inside the dialog it escapes inertness and stays clickable.
+  // â”€â”€ Live action log for the settings panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  useGamepadAction((action) => {
+    setActionLog((prev) => [
+      `${new Date().toLocaleTimeString("en-US", { hour12: false })} â€” ${action}`,
+      ...prev.slice(0, 29),
+    ]);
+  });
+
+  // â”€â”€ Portal into modal dialogs so simulator stays interactive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     const check = () => {
       const dialog = document.querySelector<HTMLDialogElement>("dialog[open]");
@@ -270,17 +289,16 @@ export default function GamepadDebugBridge() {
     flashTimer.current = setTimeout(() => setFlash(null), 150);
   }, []);
 
-  // Keyboard bridge
+  // â”€â”€ Keyboard bridge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.repeat) return; // Prevent rapid-fire on held keys
+      if (e.repeat) return;
 
-      // When VK is open, intercept mapped keys regardless of target
       if (isVirtualKeyboardOpen()) {
         const id = KEY_MAP[e.key];
         if (!id) return;
         e.preventDefault();
-        handlePress(id); // pressButton will route to dispatchVkAction
+        handlePress(id);
         return;
       }
 
@@ -311,108 +329,242 @@ export default function GamepadDebugBridge() {
     </button>
   );
 
+  // Read active mapping snapshot only when the map tab is open
+  const mapping = settingsOpen && activePanel === "map" ? getActivePsg1Mapping() : null;
+
   const sim = (
     <div className={`gp-sim${collapsed ? " gp-sim--collapsed" : ""}`}>
-      <button
-        className="gp-sim__toggle"
-        onClick={() => setCollapsed((c) => !c)}
-        aria-label={collapsed ? "Expand PSG1 simulator" : "Collapse PSG1 simulator"}
-      >
-        {collapsed ? "🎮" : "✕"}
-      </button>
 
-      {!collapsed && (
-        <div className="gp-sim__body">
-          {/* Centered I.O. watermark behind glass buttons */}
-          <div className="gp-sim__watermark" aria-hidden="true">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/io-logo-80.png" alt="" width={256} height={256} className="gp-sim__watermark-img" />
-            <span className="gp-sim__watermark-credit">By: i.O.</span>
-          </div>
-          <div className="gp-sim__title">PSG1 MAPPING SIM</div>
-          <div className="gp-sim__subtitle">PlaySolana Gamepad 1</div>
-
-          {/* ── SHOULDERS + TRIGGERS ── */}
-          <div className="gp-sim__section-label">SHOULDERS</div>
-          <div className="gp-sim__shoulders">
-            {btn("l1", "L1", "Hdr ←")}
-            {btn("r1", "R1", "Hdr →")}
+      {/* â”€â”€ Settings panel â€” shown above controller when open â”€â”€ */}
+      {settingsOpen && !collapsed && (
+        <div className="gp-sim__panel">
+          <div className="gp-sim__panel-header">
+            <span className="gp-sim__panel-title">PSG1 Â· Map Settings</span>
+            <button
+              className="gp-sim__panel-close"
+              onClick={() => setSettingsOpen(false)}
+              aria-label="Close settings"
+            >âœ•</button>
           </div>
 
+          <div className="gp-sim__panel-tabs">
+            {(["log", "map", "guide"] as SettingsPanel[]).map((tab) => (
+              <button
+                key={tab}
+                className={`gp-sim__panel-tab${activePanel === tab ? " gp-sim__panel-tab--active" : ""}`}
+                onClick={() => setActivePanel(tab)}
+              >
+                {tab === "log" ? "Live Log" : tab === "map" ? "Button Map" : "Integrate"}
+              </button>
+            ))}
+          </div>
 
-          {/* ── D-PAD + FACE ── */}
-          <div className="gp-sim__main">
-            <div className="gp-sim__zone">
-              <div className="gp-sim__section-label">D-PAD</div>
-              <div className="gp-sim__dpad">
-                {btn("up", "↑", "Nav")}
-                <div className="gp-sim__dpad-row">
-                  {btn("left", "←", "Nav")}
-                  <div className="gp-sim__dpad-gap" />
-                  {btn("right", "→", "Nav")}
-                </div>
-                {btn("down", "↓", "Nav")}
+          <div className="gp-sim__panel-body">
+
+            {/* â”€â”€ Live Log tab â”€â”€ */}
+            {activePanel === "log" && (
+              <div className="gp-sim__log">
+                {actionLog.length === 0
+                  ? <p className="gp-sim__log-empty">Press any button to see events hereâ€¦</p>
+                  : actionLog.map((entry, i) => (
+                      <p key={i} className={`gp-sim__log-entry${i === 0 ? " gp-sim__log-entry--new" : ""}`}>
+                        {entry}
+                      </p>
+                    ))
+                }
               </div>
-            </div>
+            )}
 
-            <div className="gp-sim__zone">
-              <div className="gp-sim__section-label">FACE</div>
-              <div className="gp-sim__face">
-                {btn("x", "X", "—")}
-                <div className="gp-sim__face-row">
-                  {btn("y", "Y", "Refresh")}
-                  {btn("a", "A", "Confirm")}
-                </div>
-                {btn("b", "B", "Back")}
+            {/* â”€â”€ Button Map tab â”€â”€ */}
+            {activePanel === "map" && (
+              <div className="gp-sim__ref">
+                <table className="gp-sim__ref-table">
+                  <thead>
+                    <tr>
+                      <th>Button</th>
+                      <th>Default action</th>
+                      <th>Key</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {BTN_REF.map(([b, action, key]) => (
+                      <tr key={b}>
+                        <td><code className="gp-sim__ref-btn">{b}</code></td>
+                        <td className="gp-sim__ref-action">{action}</td>
+                        <td><kbd className="gp-sim__ref-kbd">{key}</kbd></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {mapping && (
+                  <div className="gp-sim__ref-mapping">
+                    <p className="gp-sim__ref-mapping-title">
+                      Active mapping â€” <em>{mapping.name ?? "Unnamed"}</em>
+                    </p>
+                    <table className="gp-sim__ref-table">
+                      <thead>
+                        <tr><th>Action</th><th>Adapter â†’ target</th></tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(mapping.actions).map(([action, adapter]) => (
+                          <tr key={action}>
+                            <td><code className="gp-sim__ref-btn">{action}</code></td>
+                            <td className="gp-sim__ref-action">
+                              {adapter.type === "custom-event" && adapter.event}
+                              {adapter.type === "dom-click"    && adapter.selector}
+                              {adapter.type === "postMessage"  && `postMessage:${adapter.message.type}`}
+                              {adapter.type === "callback"     && `cb:${adapter.callbackId}`}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* ── CENTER — credit + buttons ── */}
-          <div className="gp-sim__credit">By: I.O.</div>
-          <div className="gp-sim__bottom">
-            {btn("select", "Sel", "Wallet")}
-            {btn("home", "◎", "Menu")}
-            {btn("start", "Start", "Gate")}
-          </div>
-
-          {/* ── STICKS ── */}
-          <div className="gp-sim__sticks">
-            <div className="gp-sim__stick">
-              <div className="gp-sim__section-label">L-STICK</div>
-              <div className="gp-sim__stick-sublabel">Pointer (moju)</div>
-              <div className="gp-sim__dpad gp-sim__dpad--stick">
-                {btn("lstick-up", "↑", "Move")}
-                <div className="gp-sim__dpad-row">
-                  {btn("lstick-left", "←", "Move")}
-                  {btn("l3", "L3", "Push")}
-                  {btn("lstick-right", "→", "Move")}
-                </div>
-                {btn("lstick-down", "↓", "Move")}
+            {/* â”€â”€ Integration guide tab â”€â”€ */}
+            {activePanel === "guide" && (
+              <div className="gp-sim__guide">
+                {GUIDE_STEPS.map(([num, label, code]) => (
+                  <div key={num} className="gp-sim__guide-step">
+                    <span className="gp-sim__guide-num">{num}</span>
+                    <div>
+                      <p className="gp-sim__guide-label">{label}</p>
+                      <pre className="gp-sim__guide-code">{code}</pre>
+                    </div>
+                  </div>
+                ))}
+                <p className="gp-sim__guide-hint">
+                  Full docs: <code>docs/INTEGRATE.md</code>
+                </p>
               </div>
-            </div>
+            )}
 
-            <div className="gp-sim__stick">
-              <div className="gp-sim__section-label">R-STICK</div>
-              <div className="gp-sim__stick-sublabel">Scroll / Nav</div>
-              <div className="gp-sim__dpad gp-sim__dpad--stick">
-                {btn("rstick-up", "↑", "Scroll ↑")}
-                <div className="gp-sim__dpad-row">
-                  {btn("rstick-left", "←", "Nav")}
-                  {btn("r3", "R3", "Click")}
-                  {btn("rstick-right", "→", "Nav")}
-                </div>
-                {btn("rstick-down", "↓", "Scroll ↓")}
-              </div>
-            </div>
-          </div>
-
-          {/* Zone legend */}
-          <div className="gp-sim__mode">
-            PSG1 · L1/R1 Shoulders · D-Pad Nav · Face A/B/X/Y · L3/R3 Push
           </div>
         </div>
       )}
+
+      {/* â”€â”€ Settings toggle button â€” between panel and controller â”€â”€ */}
+      {!collapsed && (
+        <button
+          className={`gp-sim__settings-btn${settingsOpen ? " gp-sim__settings-btn--open" : ""}`}
+          onClick={() => setSettingsOpen((s) => !s)}
+          aria-label={settingsOpen ? "Close PSG1 settings" : "Open PSG1 map settings"}
+        >
+          âš™ Map Settings {settingsOpen ? "â–¾" : "â–´"}
+        </button>
+      )}
+
+      {/* â”€â”€ Controller pad â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="gp-sim__controller">
+        <button
+          className="gp-sim__toggle"
+          onClick={() => {
+            setCollapsed((c) => {
+              if (!c) setSettingsOpen(false);
+              return !c;
+            });
+          }}
+          aria-label={collapsed ? "Expand PSG1 simulator" : "Collapse PSG1 simulator"}
+        >
+          {collapsed ? "ðŸŽ®" : "âœ•"}
+        </button>
+
+        {!collapsed && (
+          <div className="gp-sim__body">
+            {/* Centred I.O. watermark behind glass buttons */}
+            <div className="gp-sim__watermark" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/io-logo-80.png" alt="" width={256} height={256} className="gp-sim__watermark-img" />
+              <span className="gp-sim__watermark-credit">By: i.O.</span>
+            </div>
+            <div className="gp-sim__title">PSG1 MAPPING SIM</div>
+            <div className="gp-sim__subtitle">PlaySolana Gamepad 1</div>
+
+            {/* â”€â”€ SHOULDERS â”€â”€ */}
+            <div className="gp-sim__section-label">SHOULDERS</div>
+            <div className="gp-sim__shoulders">
+              {btn("l1", "L1", "Hdr â†")}
+              {btn("r1", "R1", "Hdr â†’")}
+            </div>
+
+            {/* â”€â”€ D-PAD + FACE â”€â”€ */}
+            <div className="gp-sim__main">
+              <div className="gp-sim__zone">
+                <div className="gp-sim__section-label">D-PAD</div>
+                <div className="gp-sim__dpad">
+                  {btn("up", "â†‘", "Nav")}
+                  <div className="gp-sim__dpad-row">
+                    {btn("left", "â†", "Nav")}
+                    <div className="gp-sim__dpad-gap" />
+                    {btn("right", "â†’", "Nav")}
+                  </div>
+                  {btn("down", "â†“", "Nav")}
+                </div>
+              </div>
+
+              <div className="gp-sim__zone">
+                <div className="gp-sim__section-label">FACE</div>
+                <div className="gp-sim__face">
+                  {btn("x", "X", "â€”")}
+                  <div className="gp-sim__face-row">
+                    {btn("y", "Y", "Refresh")}
+                    {btn("a", "A", "Confirm")}
+                  </div>
+                  {btn("b", "B", "Back")}
+                </div>
+              </div>
+            </div>
+
+            {/* â”€â”€ CENTER â”€â”€ */}
+            <div className="gp-sim__credit">By: I.O.</div>
+            <div className="gp-sim__bottom">
+              {btn("select", "Sel", "Wallet")}
+              {btn("home", "â—Ž", "Menu")}
+              {btn("start", "Start", "Gate")}
+            </div>
+
+            {/* â”€â”€ STICKS â”€â”€ */}
+            <div className="gp-sim__sticks">
+              <div className="gp-sim__stick">
+                <div className="gp-sim__section-label">L-STICK</div>
+                <div className="gp-sim__stick-sublabel">Pointer (moju)</div>
+                <div className="gp-sim__dpad gp-sim__dpad--stick">
+                  {btn("lstick-up", "â†‘", "Move")}
+                  <div className="gp-sim__dpad-row">
+                    {btn("lstick-left", "â†", "Move")}
+                    {btn("l3", "L3", "Push")}
+                    {btn("lstick-right", "â†’", "Move")}
+                  </div>
+                  {btn("lstick-down", "â†“", "Move")}
+                </div>
+              </div>
+
+              <div className="gp-sim__stick">
+                <div className="gp-sim__section-label">R-STICK</div>
+                <div className="gp-sim__stick-sublabel">Scroll / Nav</div>
+                <div className="gp-sim__dpad gp-sim__dpad--stick">
+                  {btn("rstick-up", "â†‘", "Scroll â†‘")}
+                  <div className="gp-sim__dpad-row">
+                    {btn("rstick-left", "â†", "Nav")}
+                    {btn("r3", "R3", "Click")}
+                    {btn("rstick-right", "â†’", "Nav")}
+                  </div>
+                  {btn("rstick-down", "â†“", "Scroll â†“")}
+                </div>
+              </div>
+            </div>
+
+            {/* Zone legend */}
+            <div className="gp-sim__mode">
+              PSG1 Â· L1/R1 Shoulders Â· D-Pad Nav Â· Face A/B/X/Y Â· L3/R3 Push
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 
