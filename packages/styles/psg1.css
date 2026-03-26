@@ -1,0 +1,610 @@
+/**
+ * PSG1 Simulator Styles — @psg1/styles
+ * ======================================
+ * Import this once at the root of your app:
+ *
+ *   import '@psg1/styles/psg1.css'   // npm package (future)
+ *   import '../psg1.css'             // local copy
+ *
+ * Classes your game must use:
+ *   .gp-cycleable   — nav tabs / header items (cycled by L1/R1)
+ *   .gp-focus       — applied automatically by the hook (do not set manually)
+ *   .gp-moju-hover  — applied automatically by the pointer cursor
+ *
+ * Classes the simulator uses internally (no action needed):
+ *   .gp-sim*  — overlay panel
+ *   .vk-*     — virtual keyboard
+ */
+
+/* ══════════════════════════════════════════════════════════════
+   FOCUS RING — D-pad / L1/R1 navigation indicator
+   neon green glow + pulse animation
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes gp-neonPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 6px #00ff41,
+      0 0 16px rgba(0, 255, 65, 0.5),
+      0 0 32px rgba(0, 255, 65, 0.2),
+      inset 0 0 10px rgba(0, 255, 65, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 12px #00ff41,
+      0 0 28px rgba(0, 255, 65, 0.7),
+      0 0 48px rgba(0, 255, 65, 0.3),
+      inset 0 0 16px rgba(0, 255, 65, 0.18);
+  }
+}
+
+.gp-focus {
+  outline: 2px solid #39ff14 !important;
+  outline-offset: 2px !important;
+  box-shadow:
+    0 0 8px #00ff41,
+    0 0 20px rgba(0, 255, 65, 0.6),
+    0 0 40px rgba(0, 255, 65, 0.25),
+    inset 0 0 12px rgba(0, 255, 65, 0.15) !important;
+  animation: gp-neonPulse 1.6s ease-in-out infinite !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MOJU POINTER HOVER — left-stick cursor highlight
+   cyan / electric blue glow (distinct from green D-pad focus)
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes gp-mojuHoverPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px #00e5ff,
+      0 0 20px rgba(0, 229, 255, 0.55),
+      0 0 36px rgba(0, 229, 255, 0.2),
+      inset 0 0 10px rgba(0, 229, 255, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 14px #00e5ff,
+      0 0 28px rgba(0, 229, 255, 0.7),
+      0 0 48px rgba(0, 229, 255, 0.3),
+      inset 0 0 14px rgba(0, 229, 255, 0.18);
+  }
+}
+
+.gp-moju-hover {
+  outline: 2px solid #00e5ff !important;
+  outline-offset: 2px !important;
+  box-shadow:
+    0 0 8px #00e5ff,
+    0 0 20px rgba(0, 229, 255, 0.55),
+    0 0 36px rgba(0, 229, 255, 0.2),
+    inset 0 0 10px rgba(0, 229, 255, 0.12) !important;
+  animation: gp-mojuHoverPulse 1.4s ease-in-out infinite !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CYCLEABLE HEADER ITEMS — L1 / R1 gold chromashift underline
+   Applied to .gp-cycleable elements when they receive gp-focus
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes gp-goldChromashift {
+  0%   { border-bottom-color: #b8860b; text-shadow: 0 1px 6px rgba(184,134,11,0.6); }
+  25%  { border-bottom-color: #d4af37; text-shadow: 0 1px 6px rgba(212,175,55,0.7); }
+  50%  { border-bottom-color: #ffd700; text-shadow: 0 1px 6px rgba(255,215,0,0.8); }
+  75%  { border-bottom-color: #f5c542; text-shadow: 0 1px 6px rgba(245,197,66,0.7); }
+  100% { border-bottom-color: #b8860b; text-shadow: 0 1px 6px rgba(184,134,11,0.6); }
+}
+
+.gp-cycleable.gp-focus {
+  outline: none !important;
+  border-bottom: 3px solid #d4af37 !important;
+  box-shadow:
+    0 4px 12px rgba(212,175,55,0.5),
+    0 2px 4px rgba(255,215,0,0.3) !important;
+  animation: gp-goldChromashift 2.4s ease-in-out infinite !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PSG1 SIMULATOR OVERLAY  (.gp-sim)
+   Fixed panel, bottom-right corner, glass-morphism gold theme.
+   Only rendered when ?gp is in the URL (zero weight in prod).
+   ══════════════════════════════════════════════════════════════ */
+
+.gp-sim {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  z-index: 99998;
+  font-family: system-ui, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.gp-sim--collapsed { bottom: 12px; right: 12px; }
+
+.gp-sim__toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid rgba(212,175,55,0.6);
+  border-radius: 50%;
+  background: rgba(12,12,18,0.95);
+  color: #e8c547;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(212,175,55,0.3);
+}
+
+.gp-sim--collapsed .gp-sim__toggle {
+  position: static;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  border-radius: 10px;
+}
+
+.gp-sim__body {
+  position: relative;
+  background: rgba(12,12,18,0.94);
+  border: 2px solid rgba(212,175,55,0.45);
+  outline: 1.5px solid rgba(212,175,55,0.18);
+  outline-offset: 3px;
+  border-radius: 24px 24px 40px 40px;
+  padding: 14px 20px 12px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  width: 320px;
+  overflow: hidden;
+  box-shadow:
+    0 0 24px rgba(212,175,55,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* I.O. watermark — centred behind glass buttons */
+.gp-sim__watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.28;
+}
+
+.gp-sim__watermark-img {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  filter: brightness(1.3) contrast(1.1);
+}
+
+.gp-sim__watermark-credit {
+  font-size: 8px;
+  font-weight: 800;
+  color: #e8c547;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(212,175,55,0.3);
+}
+
+.gp-sim__title {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #e8c547;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+  text-shadow: 0 0 8px rgba(212,175,55,0.4), 0 1px 0 rgba(0,0,0,0.5);
+}
+
+.gp-sim__subtitle {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: rgba(228,197,71,0.55);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  font-style: italic;
+  margin-bottom: 8px;
+  text-shadow: 0 0 6px rgba(212,175,55,0.2);
+}
+
+.gp-sim__section-label {
+  position: relative;
+  z-index: 1;
+  font-size: 8px;
+  font-weight: 800;
+  color: rgba(228,197,71,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-align: center;
+  margin-bottom: 3px;
+  margin-top: 6px;
+  text-shadow: 0 0 4px rgba(212,175,55,0.15);
+}
+
+.gp-sim__shoulders {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.gp-sim__main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 0 8px;
+}
+
+.gp-sim__dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.gp-sim__dpad-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* D-pad center gap (no physical button on PSG1) */
+.gp-sim__dpad-gap {
+  width: 34px;
+  height: 34px;
+}
+
+.gp-sim__face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.gp-sim__face-row {
+  display: flex;
+  gap: 8px;
+}
+
+.gp-sim__bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+  gap: 10px;
+}
+
+.gp-sim__credit {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #e8c547;
+  text-shadow: 0 0 10px rgba(212,175,55,0.35), 0 0 2px rgba(255,223,100,0.25);
+}
+
+.gp-sim__mode {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  font-size: 9px;
+  color: rgba(228,197,71,0.5);
+  margin-top: 8px;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+
+.gp-sim__btn {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 6px;
+  background: rgba(212,175,55,0.06);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.08),
+    inset 0 -1px 1px rgba(0,0,0,0.15),
+    0 1px 3px rgba(0,0,0,0.25);
+  color: #ccc;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, transform 0.08s, box-shadow 0.1s;
+  padding: 3px;
+  min-width: 34px;
+  min-height: 34px;
+}
+
+.gp-sim__btn:active,
+.gp-sim__btn--flash {
+  background: rgba(212,175,55,0.35);
+  border-color: #d4af37;
+  transform: scale(0.93);
+}
+
+/* D-pad directional */
+.gp-sim__btn--up,
+.gp-sim__btn--down,
+.gp-sim__btn--left,
+.gp-sim__btn--right { width: 34px; height: 34px; padding: 2px; }
+
+/* Face — A (green confirm) */
+.gp-sim__btn--a {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(76,175,80,0.10); border-color: rgba(76,175,80,0.4); color: #4caf50;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), inset 0 -1px 2px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.3);
+}
+.gp-sim__btn--a:active, .gp-sim__btn--a.gp-sim__btn--flash {
+  background: rgba(76,175,80,0.4); border-color: #4caf50;
+}
+
+/* Face — B (red back) */
+.gp-sim__btn--b {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(229,57,53,0.10); border-color: rgba(229,57,53,0.4); color: #e53935;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), inset 0 -1px 2px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.3);
+}
+.gp-sim__btn--b:active, .gp-sim__btn--b.gp-sim__btn--flash {
+  background: rgba(229,57,53,0.4); border-color: #e53935;
+}
+
+/* Face — Y (yellow refresh) */
+.gp-sim__btn--y {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255,235,59,0.10); border-color: rgba(255,235,59,0.4); color: #ffeb3b;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), inset 0 -1px 2px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.3);
+}
+.gp-sim__btn--y:active, .gp-sim__btn--y.gp-sim__btn--flash {
+  background: rgba(255,235,59,0.4); border-color: #ffeb3b;
+}
+
+/* Face — X (blue context) */
+.gp-sim__btn--x {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(33,150,243,0.10); border-color: rgba(33,150,243,0.4); color: #2196f3;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), inset 0 -1px 2px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.3);
+}
+.gp-sim__btn--x:active, .gp-sim__btn--x.gp-sim__btn--flash {
+  background: rgba(33,150,243,0.4); border-color: #2196f3;
+}
+
+/* Shoulders L1/R1 */
+.gp-sim__btn--l1, .gp-sim__btn--r1 { flex: 1; height: 30px; border-radius: 10px; font-size: 11px; }
+
+/* Select */
+.gp-sim__btn--select { height: 28px; padding: 0 14px; border-radius: 14px; font-size: 11px; }
+
+/* Home (Solana / app menu) */
+.gp-sim__btn--home {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(148,90,248,0.1); border-color: rgba(148,90,248,0.4); color: #945af8; font-size: 16px;
+}
+.gp-sim__btn--home:active, .gp-sim__btn--home.gp-sim__btn--flash {
+  background: rgba(148,90,248,0.4); border-color: #945af8;
+}
+
+/* Start */
+.gp-sim__btn--start { height: 28px; padding: 0 20px; border-radius: 14px; font-size: 11px; }
+
+/* Button labels */
+.gp-sim__label { font-size: 12px; font-weight: 700; line-height: 1; }
+.gp-sim__sub   { font-size: 8px; opacity: 0.55; line-height: 1; margin-top: 1px; }
+
+/* ── Zone layout ─────────────────────────────────────────────── */
+
+.gp-sim__zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gp-sim__sticks {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 20px;
+  padding: 0 8px;
+}
+
+.gp-sim__stick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.gp-sim__stick-sublabel {
+  font-size: 7px;
+  font-weight: 700;
+  color: rgba(228,197,71,0.4);
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+  font-style: italic;
+}
+
+.gp-sim__dpad--stick { gap: 2px; }
+
+.gp-sim__dpad--stick .gp-sim__btn {
+  width: 26px; height: 26px; min-width: 26px; min-height: 26px;
+  font-size: 10px; border-radius: 50%;
+}
+
+.gp-sim__dpad--stick .gp-sim__btn--l3,
+.gp-sim__dpad--stick .gp-sim__btn--r3 {
+  width: 26px; height: 26px; min-width: 26px; min-height: 26px; border-radius: 50%;
+  background: rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.25); font-size: 8px;
+}
+
+.gp-sim__dpad--stick .gp-sim__btn--l3:active,
+.gp-sim__dpad--stick .gp-sim__btn--l3.gp-sim__btn--flash,
+.gp-sim__dpad--stick .gp-sim__btn--r3:active,
+.gp-sim__dpad--stick .gp-sim__btn--r3.gp-sim__btn--flash {
+  background: rgba(212,175,55,0.4); border-color: #d4af37;
+}
+
+.gp-sim__dpad--stick .gp-sim__dpad-row { gap: 2px; }
+
+/* ══════════════════════════════════════════════════════════════
+   VIRTUAL KEYBOARD (PSG1 console-style OSK)
+   Renders as a bottom sheet when A is pressed on a text input.
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes vkFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0,0,0,0.65);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: vkFadeIn 0.2s ease-out;
+}
+
+.vk-keyboard {
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 24px;
+  padding: 16px 12px 12px;
+  border-radius: 16px 16px 0 0;
+  border: 1.5px solid rgba(212,175,55,0.45);
+  border-bottom: none;
+  background: rgba(20,20,28,0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 -4px 24px rgba(212,175,55,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.vk-preview {
+  min-height: 36px;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(212,175,55,0.3);
+  font-size: 16px;
+  font-family: monospace;
+  color: #f0e6d0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.vk-preview__text { color: #f0e6d0; }
+
+@keyframes vkBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.vk-cursor {
+  color: #d4af37;
+  animation: vkBlink 1s step-end infinite;
+  margin-left: 1px;
+}
+
+.vk-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.vk-key {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 40px;
+  border: 1.5px solid rgba(212,175,55,0.3);
+  border-radius: 8px;
+  background: rgba(30,30,42,0.8);
+  color: #d0c8b8;
+  font-size: 14px;
+  font-family: monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s, border-color 0.1s, box-shadow 0.1s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vk-key:hover {
+  background: rgba(212,175,55,0.12);
+  border-color: rgba(212,175,55,0.5);
+}
+
+.vk-key--wide {
+  flex: 1 1 0;
+  min-width: 80px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+@keyframes vkKeyPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(212,175,55,0.4), inset 0 0 8px rgba(212,175,55,0.1); }
+  50%       { box-shadow: 0 0 20px rgba(212,175,55,0.6), inset 0 0 12px rgba(212,175,55,0.2); }
+}
+
+.vk-key--active {
+  background: rgba(212,175,55,0.2);
+  border-color: #d4af37;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(212,175,55,0.4), inset 0 0 8px rgba(212,175,55,0.1);
+  animation: vkKeyPulse 1.2s ease-in-out infinite;
+}
+
+.vk-hints {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(212,175,55,0.6);
+  letter-spacing: 0.5px;
+}
+
+/* ── Numpad variant ──────────────────────────────────────────── */
+.vk-keyboard--numpad { max-width: 240px; }
+.vk-keyboard--numpad .vk-key { width: 60px; height: 48px; font-size: 20px; }
+.vk-keyboard--numpad .vk-key--wide { min-width: 60px; font-size: 13px; }

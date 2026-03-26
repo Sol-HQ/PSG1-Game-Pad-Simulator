@@ -1,0 +1,12 @@
+{
+  "name": "@psg1/core",
+  "version": "0.1.0",
+  "description": "PSG1 GamePad Simulator — hooks, nav utilities, and virtual keyboard for Solana games",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  }
+}
