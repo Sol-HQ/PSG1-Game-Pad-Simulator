@@ -567,6 +567,7 @@
   align-items: center;
   justify-content: center;
   transition: background 0.1s, border-color 0.1s, box-shadow 0.1s;
+  -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -608,3 +609,108 @@
 .vk-keyboard--numpad { max-width: 240px; }
 .vk-keyboard--numpad .vk-key { width: 60px; height: 48px; font-size: 20px; }
 .vk-keyboard--numpad .vk-key--wide { min-width: 60px; font-size: 13px; }
+
+/* ══════════════════════════════════════════════════════════════
+   MAPPER TAB — demo/testbed styles for PSG1 action routing panel
+   ══════════════════════════════════════════════════════════════ */
+
+.mapper-card {
+  background: rgba(20, 20, 32, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.mapper-card--log {
+  min-height: 120px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.mapper-card__title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.85);
+  margin: 0 0 12px;
+}
+
+.mapper-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.mapper-table th,
+.mapper-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.mapper-table th {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.mapper-table tr:last-child td { border-bottom: none; }
+
+.mapper-action {
+  color: #39ff14;
+  background: rgba(57, 255, 20, 0.08);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.mapper-target {
+  color: rgba(255, 255, 255, 0.7);
+  word-break: break-all;
+  max-width: 200px;
+}
+
+.mapper-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.mapper-badge--custom-event {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+}
+
+.mapper-badge--dom-click {
+  background: rgba(57, 255, 20, 0.12);
+  color: #39ff14;
+  border: 1px solid rgba(57, 255, 20, 0.35);
+}
+
+.mapper-badge--postMessage {
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+.mapper-badge--callback {
+  background: rgba(138, 43, 226, 0.2);
+  color: #bf7fff;
+  border: 1px solid rgba(138, 43, 226, 0.45);
+}
+
+.mapper-callback-hit {
+  margin-top: 10px;
+  color: #39ff14;
+  font-size: 13px;
+  font-family: monospace;
+}

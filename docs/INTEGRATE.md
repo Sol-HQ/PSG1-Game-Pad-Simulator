@@ -1,6 +1,6 @@
 # PSG1 — Integration Guide for Solana Game Devs
 
-Copy these 6 files into your Next.js/React game — no npm package needed.
+Copy these 8 files into your Next.js/React game — no npm package needed.
 
 ---
 
@@ -9,13 +9,15 @@ Copy these 6 files into your Next.js/React game — no npm package needed.
 ```
 FROM this repo → TO your game
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apps/web/src/hooks/useGamepad.ts     → src/hooks/useGamepad.ts
-apps/web/src/lib/gamepad-nav.ts      → src/lib/gamepad-nav.ts
+apps/web/src/hooks/useGamepad.ts        → src/hooks/useGamepad.ts
+apps/web/src/hooks/useGamepadMapper.ts  → src/hooks/useGamepadMapper.ts
+apps/web/src/lib/gamepad-nav.ts         → src/lib/gamepad-nav.ts
+apps/web/src/lib/psg1-mapper.ts         → src/lib/psg1-mapper.ts
 apps/web/src/components/
-  GamepadDebugBridge.tsx             → src/components/GamepadDebugBridge.tsx
-  VirtualKeyboard.tsx                → src/components/VirtualKeyboard.tsx
-apps/web/app/psg1.css                → src/styles/psg1.css   (or app/psg1.css)
-apps/web/public/art/                 → public/art/            (moju cursor sprites)
+  GamepadDebugBridge.tsx               → src/components/GamepadDebugBridge.tsx
+  VirtualKeyboard.tsx                  → src/components/VirtualKeyboard.tsx
+apps/web/app/psg1.css                   → src/styles/psg1.css   (or app/psg1.css)
+apps/web/public/art/                    → public/art/            (moju cursor sprites)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -217,3 +219,99 @@ Props:
 | Q | L3 |
 | E | R3 |
 | H | Home |
+
+---
+
+## Step 7 — Mapper (declarative action routing)
+
+The **PSG1 Mapper** lets you declare how each button action routes to your game engine or UI — without writing a big `switch` statement everywhere.
+
+It sits on top of `useGamepadAction()`. Both run simultaneously — the mapper adds routing, it doesn't replace existing handlers.
+
+### Adapter types
+
+| Type | What it does | Use for |
+|------|-------------|---------|
+| `dom-click` | `querySelector(selector).click()` | Any DOM button |
+| `custom-event` | `window.dispatchEvent(new CustomEvent(event, …))` | Unity WebGL, Phaser, any JS |
+| `postMessage` | `window.postMessage(message, origin)` | iframes, WebWorkers |
+| `callback` | Named JS function registered in code | Full React / TS integration |
+
+### Inline mapping (React)
+
+```tsx
+import { useGamepadMapper, useGamepadCallbacks } from "@/hooks/useGamepadMapper";
+import type { Psg1Mapping } from "@/lib/psg1-mapper";
+
+// Define OUTSIDE the component — stable reference avoids re-installs.
+const MY_MAPPING: Psg1Mapping = {
+  version: "1",
+  name: "My Game",
+  actions: {
+    confirm: { type: "dom-click",    selector: "#confirm-btn"      },
+    back:    { type: "callback",     callbackId: "goBack"          },
+    refresh: { type: "custom-event", event: "game:reload"          },
+    start:   { type: "postMessage",  message: { type: "GAME_MENU" } },
+  },
+};
+
+function MyGameRoot() {
+  // Register callbacks BEFORE the mapper so they're ready on first action.
+  useGamepadCallbacks({
+    goBack: () => router.back(),
+  });
+
+  useGamepadMapper(MY_MAPPING);
+
+  return <Game />;
+}
+```
+
+### JSON file mapping (load from URL)
+
+```ts
+import { loadPsg1Mapping } from "@/lib/psg1-mapper";
+
+// Load async — call at app boot or on route change.
+const uninstall = await loadPsg1Mapping("/psg1.mapping.json");
+
+// Uninstall later (e.g. on route change):
+uninstall();
+```
+
+A sample mapping file lives at `apps/web/public/psg1.mapping.sample.json`.
+
+### Custom-event receiver (Unity WebGL / Phaser)
+
+```js
+// In your Phaser scene or Unity WebGL glue code:
+window.addEventListener("game:reload", (e) => {
+  console.log("PSG1 refresh →", e.detail);
+  this.scene.restart();
+});
+```
+
+### PostMessage receiver (iframe)
+
+```js
+window.addEventListener("message", (e) => {
+  if (!e.data._psg1) return;          // filter: only PSG1 messages
+  if (e.data.type === "GAME_MENU") openPauseMenu();
+});
+```
+
+### Security note for `postMessage`
+
+The mapper defaults to `window.location.origin` as the target origin.
+Never set `targetOrigin: "*"` unless you understand the cross-origin implications.
+For same-origin games the default is always correct.
+
+---
+
+## Live demo
+
+The **Mapper** tab in the demo app (`npm dev` → add `?gp` to the URL) shows:
+
+- The active mapping in a live table (action → adapter type → target)
+- Both `useGamepadAction` log and mapper routing log side by side
+- `dom-click`, `custom-event`, and `callback` adapters firing in real-time

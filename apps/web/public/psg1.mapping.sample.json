@@ -1,0 +1,37 @@
+{
+  "version": "1",
+  "name": "PSG1 Demo Mapping",
+  "_comment": "Sample PSG1 mapping file. Load with: loadPsg1Mapping('/psg1.mapping.sample.json')",
+  "actions": {
+    "confirm": {
+      "type": "custom-event",
+      "event": "psg1demo:confirm",
+      "detail": { "action": "confirm", "source": "psg1" }
+    },
+    "back": {
+      "type": "custom-event",
+      "event": "psg1demo:back",
+      "detail": { "action": "back", "source": "psg1" }
+    },
+    "refresh": {
+      "type": "custom-event",
+      "event": "psg1demo:refresh",
+      "detail": { "action": "refresh", "source": "psg1" }
+    },
+    "select": {
+      "type": "custom-event",
+      "event": "psg1demo:select",
+      "detail": { "action": "select", "source": "psg1" }
+    },
+    "start": {
+      "type": "custom-event",
+      "event": "psg1demo:start",
+      "detail": { "action": "start", "source": "psg1" }
+    },
+    "home": {
+      "type": "postMessage",
+      "message": { "type": "PSG1_HOME" },
+      "targetOrigin": "same-origin"
+    }
+  }
+}
