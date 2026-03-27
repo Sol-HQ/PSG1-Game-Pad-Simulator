@@ -1,5 +1,17 @@
 # PSG1 — Integration Guide for Solana Game Devs
 
+> **The scenario this guide is written for:**
+> You have a working web game (React, Next.js, Phaser, Unity WebGL, whatever).
+> You want it to run on the PSG1 handheld with full button support.
+> You don't have the hardware yet — or you just want to test without it.
+>
+> That's exactly what PADSIM PSG1 solves. Drop in 8 files, add `?gp` to any URL,
+> and a virtual PSG1 pad appears in the corner of your browser.
+> Every button fires the same events as real hardware.
+> Build, test, and submit to PlayGate — no device required.
+
+---
+
 Copy these 8 files into your Next.js/React game — no npm package needed.
 
 ---
@@ -186,8 +198,8 @@ Props:
 | X | 3 | `x` (reserved) |
 | L1 | 4 | Cycle header left |
 | R1 | 5 | Cycle header right |
-| L2 | 6 | (reserved) |
-| R2 | 7 | (reserved) |
+| L2 | 6 | (no physical button on PSG1) |
+| R2 | 7 | (no physical button on PSG1) |
 | Select | 8 | `select` |
 | Start | 9 | `start` |
 | L3 | 10 | `l3` |
@@ -310,8 +322,22 @@ For same-origin games the default is always correct.
 
 ## Live demo
 
-The **Mapper** tab in the demo app (`npm dev` → add `?gp` to the URL) shows:
+Run the demo app (`pnpm dev` → add `?gp` to any URL). The settings panel has three tabs:
 
-- The active mapping in a live table (action → adapter type → target)
-- Both `useGamepadAction` log and mapper routing log side by side
-- `dom-click`, `custom-event`, and `callback` adapters firing in real-time
+- **Live Log** — every button press and action fires in real-time
+- **Button Map** — shows the active mapping (action → adapter type → target)
+- **Integrate** — quick-start reference copied from this guide
+
+---
+
+## Which adapter should I use?
+
+| Your game is built with | Use this adapter |
+|-------------------------|------------------|
+| React / Next.js | `callback` — register a JS function, call whatever you need |
+| Phaser / PixiJS | `custom-event` — fire `window.CustomEvent`, receive it in your scene |
+| Unity WebGL | `custom-event` — Unity's `SendMessage` bridge or `window.dispatchEvent` |
+| iframe embed | `postMessage` — safe cross-origin message, filter by `e.data._psg1` |
+| Any DOM button | `dom-click` — just pass a CSS selector, no code changes in game |
+
+When in doubt: start with `dom-click`. It works with any existing button without touching game code.

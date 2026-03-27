@@ -12,8 +12,5 @@
     "declaration": true,
     "jsx": "react-jsx"
   },
-  "include": ["index.ts"],
-  "references": [
-    { "path": "../../apps/web" }
-  ]
+  "include": ["index.ts"]
 }

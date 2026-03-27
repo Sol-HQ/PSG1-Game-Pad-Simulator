@@ -27,7 +27,7 @@ const CANCEL_WORDS = /^(cancel|no|close|back|dismiss|nevermind|not now)$/i;
 
 /**
  * Find the nearest visible cancel-type button in the CURRENT context only.
- * When a modal/dialog is open, searches ONLY within it â€” never behind it.
+ * When a modal/dialog is open, searches ONLY within it - never behind it.
  * Never searches document.body to avoid clicking unrelated transaction buttons.
  */
 function findCancelButton(): HTMLElement | null {
@@ -196,15 +196,15 @@ type SettingsPanel = "log" | "map" | "guide";
 
 const BTN_REF: [string, string, string][] = [
   ["A",         "Confirm / Click",  "Enter"],
-  ["B",         "Back / Cancel",    "âŒ«"],
+  ["B",         "Back / Cancel",    "Bksp"],
   ["X",         "Reserved",         "X"],
   ["Y",         "Refresh",          "Y"],
-  ["L1",        "â† Cycle tabs",     "["],
-  ["R1",        "â†’ Cycle tabs",     "]"],
-  ["â†‘â†“â†â†’",     "Navigate",         "Arrows"],
-  ["L-Stick",   "Move pointer",     "â€”"],
-  ["R-Stk â†‘â†“", "Scroll",           "â€”"],
-  ["R-Stk â†â†’", "Navigate",         "â€”"],
+  ["L1",        "<- Cycle tabs",     "["],
+  ["R1",        "-> Cycle tabs",     "]"],
+  ["D-Pad",     "Navigate",         "Arrows"],
+  ["L-Stick",   "Move pointer",     "-"],
+  ["R-Stick U/D", "Scroll",           "-"],
+  ["R-Stick L/R", "Navigate",         "-"],
   ["Select",    "Wallet",           "Tab"],
   ["Start",     "Gate / Menu",      "Space"],
   ["Home",      "App menu",         "H"],
@@ -223,15 +223,15 @@ const GUIDE_STEPS: [string, string, string][] = [
 /* â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * PSG1 gamepad simulator â€” fixed bottom-right corner widget.
+ * PSG1 gamepad simulator - fixed bottom-right corner widget.
  *
  * Contains:
  *  - The physical controller pad (tap buttons or use keyboard shortcuts)
- *  - "âš™ Map Settings" toggle above the pad
+ *  - "PADSIM Map Settings" toggle above the pad
  *  - Settings panel with three tabs:
- *      Live Log   â€” real-time stream of every PSG1 action fired
- *      Button Map â€” default action + keyboard shortcut for every input
- *      Integrate  â€” copy-paste integration guide for devs
+ *      Live Log   - real-time stream of every PSG1 action fired
+ *      Button Map - default action + keyboard shortcut for every input
+ *      Integrate  - copy-paste integration guide for devs
  *
  * Keyboard: â†â†‘â†’â†“=D-pad, Enter=A, Backspace=B, X=Context, Y=Refresh,
  * []=L1/R1, Tab=Select, Space=Start, Q/E=L3/R3, H=Home
@@ -248,7 +248,7 @@ export default function GamepadDebugBridge() {
   // â”€â”€ Live action log for the settings panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useGamepadAction((action) => {
     setActionLog((prev) => [
-      `${new Date().toLocaleTimeString("en-US", { hour12: false })} â€” ${action}`,
+      `${new Date().toLocaleTimeString("en-US", { hour12: false })} - ${action}`,
       ...prev.slice(0, 29),
     ]);
   });
@@ -335,16 +335,16 @@ export default function GamepadDebugBridge() {
   const sim = (
     <div className={`gp-sim${collapsed ? " gp-sim--collapsed" : ""}`}>
 
-      {/* â”€â”€ Settings panel â€” shown above controller when open â”€â”€ */}
+      {/* â”€â”€ Settings panel - shown above controller when open â”€â”€ */}
       {settingsOpen && !collapsed && (
         <div className="gp-sim__panel">
           <div className="gp-sim__panel-header">
-            <span className="gp-sim__panel-title">PSG1 Â· Map Settings</span>
+            <span className="gp-sim__panel-title">PADSIM Map Settings</span>
             <button
               className="gp-sim__panel-close"
               onClick={() => setSettingsOpen(false)}
               aria-label="Close settings"
-            >âœ•</button>
+            >X</button>
           </div>
 
           <div className="gp-sim__panel-tabs">
@@ -365,7 +365,7 @@ export default function GamepadDebugBridge() {
             {activePanel === "log" && (
               <div className="gp-sim__log">
                 {actionLog.length === 0
-                  ? <p className="gp-sim__log-empty">Press any button to see events hereâ€¦</p>
+                  ? <p className="gp-sim__log-empty">Press any button to see events here...</p>
                   : actionLog.map((entry, i) => (
                       <p key={i} className={`gp-sim__log-entry${i === 0 ? " gp-sim__log-entry--new" : ""}`}>
                         {entry}
@@ -400,11 +400,11 @@ export default function GamepadDebugBridge() {
                 {mapping && (
                   <div className="gp-sim__ref-mapping">
                     <p className="gp-sim__ref-mapping-title">
-                      Active mapping â€” <em>{mapping.name ?? "Unnamed"}</em>
+                      Active mapping: <em>{mapping.name ?? "Unnamed"}</em>
                     </p>
                     <table className="gp-sim__ref-table">
                       <thead>
-                        <tr><th>Action</th><th>Adapter â†’ target</th></tr>
+                        <tr><th>Action</th><th>Adapter to target</th></tr>
                       </thead>
                       <tbody>
                         {Object.entries(mapping.actions).map(([action, adapter]) => (
@@ -447,14 +447,14 @@ export default function GamepadDebugBridge() {
         </div>
       )}
 
-      {/* â”€â”€ Settings toggle button â€” between panel and controller â”€â”€ */}
+      {/* â”€â”€ Settings toggle button - between panel and controller â”€â”€ */}
       {!collapsed && (
         <button
           className={`gp-sim__settings-btn${settingsOpen ? " gp-sim__settings-btn--open" : ""}`}
           onClick={() => setSettingsOpen((s) => !s)}
           aria-label={settingsOpen ? "Close PSG1 settings" : "Open PSG1 map settings"}
         >
-          âš™ Map Settings {settingsOpen ? "â–¾" : "â–´"}
+          PADSIM Map Settings {settingsOpen ? "[-]" : "[+]"}
         </button>
       )}
 
@@ -470,7 +470,7 @@ export default function GamepadDebugBridge() {
           }}
           aria-label={collapsed ? "Expand PSG1 simulator" : "Collapse PSG1 simulator"}
         >
-          {collapsed ? "ðŸŽ®" : "âœ•"}
+          {collapsed ? "PSG1" : "X"}
         </button>
 
         {!collapsed && (
@@ -487,8 +487,8 @@ export default function GamepadDebugBridge() {
             {/* â”€â”€ SHOULDERS â”€â”€ */}
             <div className="gp-sim__section-label">SHOULDERS</div>
             <div className="gp-sim__shoulders">
-              {btn("l1", "L1", "Hdr â†")}
-              {btn("r1", "R1", "Hdr â†’")}
+              {btn("l1", "L1", "Hdr <")}
+              {btn("r1", "R1", "Hdr >")}
             </div>
 
             {/* â”€â”€ D-PAD + FACE â”€â”€ */}
@@ -496,20 +496,20 @@ export default function GamepadDebugBridge() {
               <div className="gp-sim__zone">
                 <div className="gp-sim__section-label">D-PAD</div>
                 <div className="gp-sim__dpad">
-                  {btn("up", "â†‘", "Nav")}
+                  {btn("up", "Up", "Nav")}
                   <div className="gp-sim__dpad-row">
-                    {btn("left", "â†", "Nav")}
+                    {btn("left", "Lt", "Nav")}
                     <div className="gp-sim__dpad-gap" />
-                    {btn("right", "â†’", "Nav")}
+                    {btn("right", "Rt", "Nav")}
                   </div>
-                  {btn("down", "â†“", "Nav")}
+                  {btn("down", "Dn", "Nav")}
                 </div>
               </div>
 
               <div className="gp-sim__zone">
                 <div className="gp-sim__section-label">FACE</div>
                 <div className="gp-sim__face">
-                  {btn("x", "X", "â€”")}
+                  {btn("x", "X", "-")}
                   <div className="gp-sim__face-row">
                     {btn("y", "Y", "Refresh")}
                     {btn("a", "A", "Confirm")}
@@ -523,7 +523,7 @@ export default function GamepadDebugBridge() {
             <div className="gp-sim__credit">By: I.O.</div>
             <div className="gp-sim__bottom">
               {btn("select", "Sel", "Wallet")}
-              {btn("home", "â—Ž", "Menu")}
+              {btn("home", "Home", "Menu")}
               {btn("start", "Start", "Gate")}
             </div>
 
@@ -533,13 +533,13 @@ export default function GamepadDebugBridge() {
                 <div className="gp-sim__section-label">L-STICK</div>
                 <div className="gp-sim__stick-sublabel">Pointer (moju)</div>
                 <div className="gp-sim__dpad gp-sim__dpad--stick">
-                  {btn("lstick-up", "â†‘", "Move")}
+                  {btn("lstick-up", "Up", "Move")}
                   <div className="gp-sim__dpad-row">
-                    {btn("lstick-left", "â†", "Move")}
+                    {btn("lstick-left", "Lt", "Move")}
                     {btn("l3", "L3", "Push")}
-                    {btn("lstick-right", "â†’", "Move")}
+                    {btn("lstick-right", "Rt", "Move")}
                   </div>
-                  {btn("lstick-down", "â†“", "Move")}
+                  {btn("lstick-down", "Dn", "Move")}
                 </div>
               </div>
 
@@ -547,20 +547,20 @@ export default function GamepadDebugBridge() {
                 <div className="gp-sim__section-label">R-STICK</div>
                 <div className="gp-sim__stick-sublabel">Scroll / Nav</div>
                 <div className="gp-sim__dpad gp-sim__dpad--stick">
-                  {btn("rstick-up", "â†‘", "Scroll â†‘")}
+                  {btn("rstick-up", "Up", "Scroll")}
                   <div className="gp-sim__dpad-row">
-                    {btn("rstick-left", "â†", "Nav")}
+                    {btn("rstick-left", "Lt", "Nav")}
                     {btn("r3", "R3", "Click")}
-                    {btn("rstick-right", "â†’", "Nav")}
+                    {btn("rstick-right", "Rt", "Nav")}
                   </div>
-                  {btn("rstick-down", "â†“", "Scroll â†“")}
+                  {btn("rstick-down", "Dn", "Scroll")}
                 </div>
               </div>
             </div>
 
             {/* Zone legend */}
             <div className="gp-sim__mode">
-              PSG1 Â· L1/R1 Shoulders Â· D-Pad Nav Â· Face A/B/X/Y Â· L3/R3 Push
+              PSG1 | L1/R1 Shoulders | D-Pad Nav | Face A/B/X/Y | L3/R3 Push
             </div>
           </div>
         )}

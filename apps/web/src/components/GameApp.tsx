@@ -15,7 +15,7 @@
  *   4. Add ?gp to any URL to open the simulator overlay
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useGamepadPoll } from "@/hooks/useGamepad";
 import { configurePsg1 } from "@/lib/gamepad-nav";
@@ -40,10 +40,11 @@ export default function GameApp({ children, contentZone }: GameAppProps) {
   // Mount the hardware polling loop ONCE at the app level.
   useGamepadPoll();
 
-  // Read ?gp once — never changes after initial render.
-  const [gpDebug] = useState(
-    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("gp"),
-  );
+  // Read ?gp after mount to avoid SSR/client hydration mismatch.
+  const [gpDebug, setGpDebug] = useState(false);
+  useEffect(() => {
+    setGpDebug(new URLSearchParams(window.location.search).has("gp"));
+  }, []);
 
   return (
     <>
