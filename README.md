@@ -17,6 +17,15 @@
 
 ---
 
+## Documentation
+
+- **[docs/LAYMANS_MANUAL.md](docs/LAYMANS_MANUAL.md)** — Step-by-step integration guide for humans and AI agents (start here)
+- **[docs/INTEGRATE.md](docs/INTEGRATE.md)** — Technical integration reference
+- **[PSG1/CONTROLLER_MAP.md](PSG1/CONTROLLER_MAP.md)** — Full button/axis/action mapping table
+- **[PSG1/PLAYGATE.md](PSG1/PLAYGATE.md)** — PlayGate submission checklist
+
+---
+
 ## Quick Start (copy-paste, no npm required)
 
 ### Step 1 — Copy the files
@@ -212,7 +221,10 @@ PSG1-Game-Pad-Simulator/
         art/         ← moju cursor sprites
         brand/       ← I.O. watermark
   docs/
+    LAYMANS_MANUAL.md   ← step-by-step integration manual (start here)
+    INTEGRATE.md        ← technical integration reference
     PSG1_INTEGRATION.md
+    PSG1_ORIGIN.md
   PSG1/
     CONTROLLER_MAP.md
     PLAYGATE.md
