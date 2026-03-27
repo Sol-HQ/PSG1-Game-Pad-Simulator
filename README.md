@@ -62,22 +62,29 @@ export default function RootLayout({ children }) {
 ### Step 4 — Load the simulator overlay
 
 ```tsx
+"use client";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 const GamepadDebugBridge = dynamic(() => import("@/components/GamepadDebugBridge"), { ssr: false });
 const VirtualKeyboard    = dynamic(() => import("@/components/VirtualKeyboard"),    { ssr: false });
 
-// Inside your root component:
-const gpDebug = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("gp");
-// ...
-return (
-  <>
-    {children}
-    {gpDebug && <><GamepadDebugBridge /><VirtualKeyboard /></>}
-  </>
-);
+// Read ?gp AFTER mount — avoids SSR/client hydration mismatch.
+export default function RootLayout({ children }) {
+  const [gpDebug, setGpDebug] = useState(false);
+  useEffect(() => {
+    setGpDebug(new URLSearchParams(window.location.search).has("gp"));
+  }, []);
+
+  return (
+    <>
+      {children}
+      {gpDebug && <><GamepadDebugBridge /><VirtualKeyboard /></>}
+    </>
+  );
+}
 ```
 
-Now add `?gp` to any URL in your game — the controller overlay appears.
+Or just use the included `<GameApp>` wrapper — it does all of the above in one component.
 
 ### Step 5 — Mark your navigation
 

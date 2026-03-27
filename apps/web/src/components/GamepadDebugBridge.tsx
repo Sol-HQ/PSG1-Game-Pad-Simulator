@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -64,7 +64,7 @@ function moveCursor(dx: number, dy: number) {
   );
 }
 
-/* â”€â”€ Shared button press handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Shared button press handler ------------------------------- */
 
 function pressButton(id: string) {
   if (isVirtualKeyboardOpen()) {
@@ -165,7 +165,7 @@ function pressButton(id: string) {
   }
 }
 
-/* â”€â”€ Keyboard mapping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Keyboard mapping -------------------------------------------- */
 
 const KEY_MAP: Record<string, string> = {
   ArrowUp: "up",
@@ -190,7 +190,7 @@ const KEY_MAP: Record<string, string> = {
   H: "home",
 };
 
-/* â”€â”€ Settings panel data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Settings panel data ---------------------------------------- */
 
 type SettingsPanel = "log" | "map" | "guide";
 
@@ -220,7 +220,7 @@ const GUIDE_STEPS: [string, string, string][] = [
   ["5", "Install a mapper (optional)", "installPsg1Mapper({\n  version: '1',\n  actions: {\n    confirm: {\n      type: 'custom-event',\n      event: 'game:confirm'\n    }\n  }\n})"],
 ];
 
-/* â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Component --------------------------------------------------- */
 
 /**
  * PSG1 gamepad simulator - fixed bottom-right corner widget.
@@ -233,7 +233,7 @@ const GUIDE_STEPS: [string, string, string][] = [
  *      Button Map - default action + keyboard shortcut for every input
  *      Integrate  - copy-paste integration guide for devs
  *
- * Keyboard: â†â†‘â†’â†“=D-pad, Enter=A, Backspace=B, X=Context, Y=Refresh,
+ * Keyboard: leftuprightdown=D-pad, Enter=A, Backspace=B, X=Context, Y=Refresh,
  * []=L1/R1, Tab=Select, Space=Start, Q/E=L3/R3, H=Home
  */
 export default function GamepadDebugBridge() {
@@ -245,7 +245,7 @@ export default function GamepadDebugBridge() {
   const flashTimer = useRef<ReturnType<typeof setTimeout>>();
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
-  // â”€â”€ Live action log for the settings panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Live action log for the settings panel -----------------------------
   useGamepadAction((action) => {
     setActionLog((prev) => [
       `${new Date().toLocaleTimeString("en-US", { hour12: false })} - ${action}`,
@@ -253,7 +253,7 @@ export default function GamepadDebugBridge() {
     ]);
   });
 
-  // â”€â”€ Portal into modal dialogs so simulator stays interactive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Portal into modal dialogs so simulator stays interactive -----------
   useEffect(() => {
     const check = () => {
       const dialog = document.querySelector<HTMLDialogElement>("dialog[open]");
@@ -289,7 +289,7 @@ export default function GamepadDebugBridge() {
     flashTimer.current = setTimeout(() => setFlash(null), 150);
   }, []);
 
-  // â”€â”€ Keyboard bridge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Keyboard bridge -----------------------------------------------------
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return;
@@ -335,7 +335,7 @@ export default function GamepadDebugBridge() {
   const sim = (
     <div className={`gp-sim${collapsed ? " gp-sim--collapsed" : ""}`}>
 
-      {/* â”€â”€ Settings panel - shown above controller when open â”€â”€ */}
+      {/* -- Settings panel - shown above controller when open -- */}
       {settingsOpen && !collapsed && (
         <div className="gp-sim__panel">
           <div className="gp-sim__panel-header">
@@ -361,7 +361,7 @@ export default function GamepadDebugBridge() {
 
           <div className="gp-sim__panel-body">
 
-            {/* â”€â”€ Live Log tab â”€â”€ */}
+            {/* -- Live Log tab -- */}
             {activePanel === "log" && (
               <div className="gp-sim__log">
                 {actionLog.length === 0
@@ -375,7 +375,7 @@ export default function GamepadDebugBridge() {
               </div>
             )}
 
-            {/* â”€â”€ Button Map tab â”€â”€ */}
+            {/* -- Button Map tab -- */}
             {activePanel === "map" && (
               <div className="gp-sim__ref">
                 <table className="gp-sim__ref-table">
@@ -425,7 +425,7 @@ export default function GamepadDebugBridge() {
               </div>
             )}
 
-            {/* â”€â”€ Integration guide tab â”€â”€ */}
+            {/* -- Integration guide tab -- */}
             {activePanel === "guide" && (
               <div className="gp-sim__guide">
                 {GUIDE_STEPS.map(([num, label, code]) => (
@@ -447,7 +447,7 @@ export default function GamepadDebugBridge() {
         </div>
       )}
 
-      {/* â”€â”€ Settings toggle button - between panel and controller â”€â”€ */}
+      {/* -- Settings toggle button - between panel and controller -- */}
       {!collapsed && (
         <button
           className={`gp-sim__settings-btn${settingsOpen ? " gp-sim__settings-btn--open" : ""}`}
@@ -458,7 +458,7 @@ export default function GamepadDebugBridge() {
         </button>
       )}
 
-      {/* â”€â”€ Controller pad â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Controller pad --------------------------------------- */}
       <div className="gp-sim__controller">
         <button
           className="gp-sim__toggle"
@@ -484,14 +484,14 @@ export default function GamepadDebugBridge() {
             <div className="gp-sim__title">PSG1 MAPPING SIM</div>
             <div className="gp-sim__subtitle">PlaySolana Gamepad 1</div>
 
-            {/* â”€â”€ SHOULDERS â”€â”€ */}
+            {/* -- SHOULDERS -- */}
             <div className="gp-sim__section-label">SHOULDERS</div>
             <div className="gp-sim__shoulders">
               {btn("l1", "L1", "Hdr <")}
               {btn("r1", "R1", "Hdr >")}
             </div>
 
-            {/* â”€â”€ D-PAD + FACE â”€â”€ */}
+            {/* -- D-PAD + FACE -- */}
             <div className="gp-sim__main">
               <div className="gp-sim__zone">
                 <div className="gp-sim__section-label">D-PAD</div>
@@ -519,7 +519,7 @@ export default function GamepadDebugBridge() {
               </div>
             </div>
 
-            {/* â”€â”€ CENTER â”€â”€ */}
+            {/* -- CENTER -- */}
             <div className="gp-sim__credit">By: I.O.</div>
             <div className="gp-sim__bottom">
               {btn("select", "Sel", "Wallet")}
@@ -527,7 +527,7 @@ export default function GamepadDebugBridge() {
               {btn("start", "Start", "Gate")}
             </div>
 
-            {/* â”€â”€ STICKS â”€â”€ */}
+            {/* -- STICKS -- */}
             <div className="gp-sim__sticks">
               <div className="gp-sim__stick">
                 <div className="gp-sim__section-label">L-STICK</div>
