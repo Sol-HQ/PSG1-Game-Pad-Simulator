@@ -5,7 +5,10 @@
   "description": "PSG1 GamePad Simulator — open-source browser gamepad emulator for Solana games",
   "scripts": {
     "dev": "pnpm --filter @psg1/demo dev",
+    "dev:game": "pnpm --filter @psg1/example-tic-tac-toe dev",
     "build": "pnpm --filter @psg1/demo build",
+    "build:game": "pnpm --filter @psg1/example-tic-tac-toe build",
+    "build:all": "pnpm -r build",
     "lint": "pnpm --filter @psg1/demo lint"
   },
   "devDependencies": {

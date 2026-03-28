@@ -1,0 +1,330 @@
+/*
+ * Tic-Tac-Toe — PSG1 Example Game Styles
+ * ========================================
+ * Import PSG1's CSS for the simulator overlay, then game-specific styles.
+ */
+
+/* ── PSG1 simulator CSS (the overlay, focus ring, virtual keyboard, etc.) ── */
+/* In production, this would be: @import "@psg1/styles/psg1.css" */
+@import "../../../packages/styles/psg1.css";
+
+/* ━━━━━ CSS CUSTOM PROPERTIES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+  --bg:          #0b0f19;
+  --bg-card:     rgba(255, 255, 255, 0.06);
+  --bg-hover:    rgba(255, 255, 255, 0.09);
+  --border:      rgba(255, 255, 255, 0.1);
+  --text:        #e8e8f0;
+  --muted:       rgba(232, 232, 240, 0.55);
+  --gold:        #d4af37;
+  --gold-dim:    rgba(212, 175, 55, 0.35);
+  --teal:        #2dd4bf;
+  --red:         #ef4444;
+  --green:       #22c55e;
+  --radius:      12px;
+  --cell-size:   100px;
+}
+
+/* ━━━━━ RESET ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ━━━━━ ROOT LAYOUT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  gap: 16px;
+}
+
+/* ━━━━━ MENU ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.ttt-menu__title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+.ttt-menu__sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: -16px;
+}
+
+.ttt-menu__section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ttt-menu__label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.ttt-menu__btns {
+  display: flex;
+  gap: 8px;
+}
+
+.ttt-menu__btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ttt-menu__btn:hover { background: var(--bg-hover); }
+.ttt-menu__btn--active {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+
+/* PSG1 focus ring on menu buttons */
+.ttt-menu__btn.gp-focus,
+.ttt-menu__start.gp-focus {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.ttt-menu__start {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--gold);
+  color: #0b0f19;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.ttt-menu__start:hover { opacity: 0.9; }
+
+.ttt-menu__controls {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.ttt-menu__grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
+.ttt-menu__grid kbd {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--gold);
+}
+.ttt-menu__grid span {
+  color: var(--muted);
+}
+
+/* ━━━━━ GAME AREA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.ttt-header {
+  text-align: center;
+}
+
+.ttt-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.ttt-turn {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.ttt-result {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* ━━━━━ BOARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, var(--cell-size));
+  grid-template-rows: repeat(3, var(--cell-size));
+  gap: 6px;
+  background: var(--border);
+  border-radius: var(--radius);
+  padding: 6px;
+}
+
+.ttt-cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  position: relative;
+}
+.ttt-cell:hover:not(.ttt-cell--placed) {
+  background: var(--bg-hover);
+}
+
+/* PSG1 focus ring on board cells */
+.ttt-cell.gp-focus {
+  outline: 3px solid var(--gold);
+  outline-offset: -3px;
+  background: var(--bg-hover);
+}
+
+.ttt-cell--win {
+  background: var(--gold-dim) !important;
+}
+
+/* ━━━━━ MARKS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-mark {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.ttt-mark--X { color: var(--teal); }
+.ttt-mark--O { color: var(--red); }
+
+/* ━━━━━ SCORES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-scores {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+}
+
+.ttt-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.ttt-score__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.ttt-score__value {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.ttt-score--x .ttt-score__value { color: var(--teal); }
+.ttt-score--o .ttt-score__value { color: var(--red); }
+.ttt-score--draw .ttt-score__value { color: var(--muted); }
+
+/* ━━━━━ ACTION BUTTONS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ttt-btn {
+  padding: 8px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ttt-btn:hover { background: var(--bg-hover); }
+.ttt-btn--primary {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: #0b0f19;
+}
+.ttt-btn--primary:hover { opacity: 0.9; }
+
+/* PSG1 focus ring on action buttons */
+.ttt-btn.gp-focus {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ━━━━━ CONTROLS HINT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt-controls-hint {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.78rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  width: 100%;
+}
+.ttt-controls-hint kbd {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--gold);
+}
+
+/* ━━━━━ RESPONSIVE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 400px) {
+  :root { --cell-size: 80px; }
+  .ttt-mark { font-size: 1.8rem; }
+  .ttt-menu__title { font-size: 1.8rem; }
+}

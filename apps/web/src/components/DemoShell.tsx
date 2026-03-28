@@ -2,16 +2,20 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useGamepadPoll, useGamepadAction } from "@/hooks/useGamepad";
-import { useGamepadMapper, useGamepadCallbacks } from "@/hooks/useGamepadMapper";
-import { type Psg1Mapping } from "@/lib/psg1-mapper";
+import {
+  useGamepadPoll,
+  useGamepadAction,
+  useGamepadMapper,
+  useGamepadCallbacks,
+  type Psg1Mapping,
+} from "@psg1/core";
 
 /**
  * PSG1 simulator — only loaded when ?gp is in the URL.
  * Zero bytes in production builds.
  */
-const GamepadDebugBridge = dynamic(() => import("./GamepadDebugBridge"), { ssr: false });
-const VirtualKeyboard = dynamic(() => import("./VirtualKeyboard"), { ssr: false });
+const GamepadDebugBridge = dynamic(() => import("@psg1/core/components/GamepadDebugBridge"), { ssr: false });
+const VirtualKeyboard = dynamic(() => import("@psg1/core/components/VirtualKeyboard"), { ssr: false });
 
 const TABS = ["Lobby", "Profile", "Leaderboard", "Admin", "Mapper"] as const;
 type Tab = (typeof TABS)[number];

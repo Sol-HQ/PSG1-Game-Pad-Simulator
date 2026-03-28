@@ -1,0 +1,11 @@
+{
+  "name": "@psg1/styles",
+  "version": "0.1.0",
+  "description": "PSG1 GamePad Simulator — CSS styles",
+  "main": "./psg1.css",
+  "exports": {
+    ".": "./psg1.css",
+    "./psg1.css": "./psg1.css"
+  },
+  "license": "MIT"
+}

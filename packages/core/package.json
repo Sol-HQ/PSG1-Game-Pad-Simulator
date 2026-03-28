@@ -2,11 +2,27 @@
   "name": "@psg1/core",
   "version": "0.1.0",
   "description": "PSG1 GamePad Simulator — hooks, nav utilities, and virtual keyboard for Solana games",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/GamepadDebugBridge": "./src/components/GamepadDebugBridge.tsx",
+    "./components/VirtualKeyboard": "./src/components/VirtualKeyboard.tsx",
+    "./components/GameApp": "./src/components/GameApp.tsx"
+  },
   "license": "MIT",
+  "devDependencies": {
+    "@types/react": ">=18",
+    "@types/react-dom": ">=18"
+  },
   "peerDependencies": {
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "next": ">=13"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
   }
 }

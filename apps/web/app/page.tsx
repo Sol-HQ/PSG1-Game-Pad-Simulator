@@ -8,10 +8,9 @@ export default function Home() {
           The controller widget will appear in the bottom-right corner.
         </p>
         <p className="psg1-placeholder__hint psg1-placeholder__hint--game">
-          Try the test game:{" "}
-          <a href="/game?gp" className="psg1-placeholder__link">
-            Tic-Tac-Toe with PSG1
-          </a>
+          Try the example game: run{" "}
+          <code>pnpm --filter @psg1/example-tic-tac-toe dev</code>{" "}
+          then open <code>localhost:3001?gp</code>
         </p>
       </div>
     </div>

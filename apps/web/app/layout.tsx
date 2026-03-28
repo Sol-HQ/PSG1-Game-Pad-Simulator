@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import GameApp from "@/components/GameApp";
+import { GameApp } from "@psg1/core";
 
 export const metadata: Metadata = {
   title: "PSG1 Gamepad Simulator",

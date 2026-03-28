@@ -17,8 +17,8 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useGamepadPoll } from "@/hooks/useGamepad";
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { useGamepadPoll } from "../hooks/useGamepad";
+import { configurePsg1 } from "../lib/gamepad-nav";
 
 // Zero-cost dynamic imports — neither module is included in the production bundle
 // unless the ?gp query param is present (checked at runtime, not build time).
