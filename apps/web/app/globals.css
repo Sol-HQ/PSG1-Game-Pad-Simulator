@@ -110,3 +110,28 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:sys
   font-size: 11px;
   font-family: monospace;
 }
+
+/* ━━━━━ TIC-TAC-TOE TEST GAME (/game) ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ttt{display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px 16px 100px;min-height:100dvh}
+.ttt__title{font-size:28px;font-weight:900;letter-spacing:0.06em;color:var(--accent)}
+.ttt__status{font-size:18px;font-weight:700;color:var(--text);min-height:28px}
+.ttt__hint{font-size:12px;color:var(--muted);text-align:center}
+.ttt__board{display:grid;grid-template-columns:repeat(3,96px);grid-template-rows:repeat(3,96px);gap:6px}
+.ttt__cell{width:96px;height:96px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);color:var(--text);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.ttt__cell:hover{background:var(--bg-hover);border-color:var(--accent-dim)}
+.ttt__cell--x{color:#e06c75}
+.ttt__cell--o{color:#61afef}
+.ttt__cell--win{border-color:var(--accent);background:rgba(212,175,55,0.12);box-shadow:0 0 12px rgba(212,175,55,0.3)}
+.ttt__actions{display:flex;gap:12px}
+.ttt__btn{padding:8px 24px;border:1px solid var(--border);border-radius:20px;background:var(--bg-card);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s}
+.ttt__btn:hover{background:var(--bg-hover);border-color:var(--accent-dim)}
+.ttt__btn:disabled{opacity:.4;cursor:not-allowed}
+.ttt__btn--restart{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.ttt__footer{font-size:12px;color:var(--muted);margin-top:24px}
+.ttt__footer code{color:rgba(212,175,55,0.5);background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.12);border-radius:4px;padding:1px 6px;font-size:11px;font-family:monospace}
+@media(max-width:400px){
+  .ttt__board{grid-template-columns:repeat(3,72px);grid-template-rows:repeat(3,72px)}
+  .ttt__cell{width:72px;height:72px;font-size:28px}
+}
+.psg1-placeholder__hint--game{margin-top:12px}
+.psg1-placeholder__link{color:rgba(212,175,55,0.7);text-decoration:underline}

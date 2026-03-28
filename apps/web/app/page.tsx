@@ -7,6 +7,12 @@ export default function Home() {
           Add <code>?gp</code> to the URL to activate the PSG1 simulator.{" "}
           The controller widget will appear in the bottom-right corner.
         </p>
+        <p className="psg1-placeholder__hint psg1-placeholder__hint--game">
+          Try the test game:{" "}
+          <a href="/game?gp" className="psg1-placeholder__link">
+            Tic-Tac-Toe with PSG1
+          </a>
+        </p>
       </div>
     </div>
   );
