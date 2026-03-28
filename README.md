@@ -31,14 +31,19 @@
 ### Step 1 — Copy the files
 
 ```
-src/
+packages/core/src/
   components/
     GamepadDebugBridge.tsx   ← simulator overlay + keyboard bridge
     VirtualKeyboard.tsx      ← console-style OSK
+    GameApp.tsx              ← drop-in wrapper (does everything)
   hooks/
     useGamepad.ts            ← hardware polling + event bus
+    useGamepadMapper.ts      ← declarative action routing hook
   lib/
     gamepad-nav.ts           ← spatial nav, focus, modal utilities
+    psg1-mapper.ts           ← runtime mapper engine
+packages/styles/
+  psg1.css                   ← all PSG1 CSS
 public/
   art/
     moju-gold-32.png  moju-gold-48.png  … (cursor sprites)
@@ -60,7 +65,7 @@ In your `globals.css` (or equivalent):
 
 ```tsx
 // app/layout.tsx or _app.tsx (client component)
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 
 export default function RootLayout({ children }) {
   useGamepadPoll();   // starts hardware + simulator bridge
@@ -111,14 +116,14 @@ Or just use the included `<GameApp>` wrapper — it does all of the above in one
 If your content zone has a different class name, configure it once at boot:
 
 ```ts
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { configurePsg1 } from "@psg1/core";
 configurePsg1({ contentZone: ".my-game-content" });
 ```
 
 ### Step 6 — Listen for semantic actions (optional)
 
 ```tsx
-import { useGamepadAction } from "@/hooks/useGamepad";
+import { useGamepadAction } from "@psg1/core";
 
 function MyComponent() {
   useGamepadAction((action) => {
@@ -202,27 +207,32 @@ pnpm dev
 ```
 PSG1-Game-Pad-Simulator/
   packages/
-    core/          ← public API (index.ts) — future npm @psg1/core
-    styles/
-      psg1.css     ← all CSS, @import this in your project
-  apps/
-    web/           ← Next.js demo testbed
+    core/                ← @psg1/core npm package
       src/
         components/
-          GamepadDebugBridge.tsx
-          VirtualKeyboard.tsx
-          GameApp.tsx            ← integration example shell
-          DemoShell.tsx          ← demo testbed UI
+          GamepadDebugBridge.tsx   ← simulator overlay
+          VirtualKeyboard.tsx      ← console-style OSK
+          GameApp.tsx              ← drop-in wrapper
         hooks/
-          useGamepad.ts
+          useGamepad.ts            ← hardware polling + event bus
+          useGamepadMapper.ts      ← declarative action routing
         lib/
-          gamepad-nav.ts
+          gamepad-nav.ts           ← spatial nav + focus
+          psg1-mapper.ts           ← runtime mapper engine
+    styles/
+      psg1.css           ← all PSG1 CSS
+  apps/
+    web/                 ← Next.js demo testbed
+      src/components/
+        DemoShell.tsx     ← demo UI (imports from @psg1/core)
       public/
-        art/         ← moju cursor sprites
-        brand/       ← I.O. watermark
+        art/              ← moju cursor sprites
+        brand/            ← I.O. watermark
+  examples/
+    tic-tac-toe/         ← full example game using @psg1/core
   docs/
-    LAYMANS_MANUAL.md   ← step-by-step integration manual (start here)
-    INTEGRATE.md        ← technical integration reference
+    LAYMANS_MANUAL.md    ← step-by-step integration manual (start here)
+    INTEGRATE.md         ← technical integration reference
     PSG1_INTEGRATION.md
     PSG1_ORIGIN.md
   PSG1/

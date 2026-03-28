@@ -5,13 +5,10 @@ import {
   clearGpFocus,
   closeModal,
   cycleHeader,
-  getFocusablesIn,
-  getContentContainer,
   getGpFocused,
   isModalOpen,
   MODAL_SELECTOR,
   scrollContent,
-  setGpFocus,
   spatialNav,
 } from "../lib/gamepad-nav";
 import {

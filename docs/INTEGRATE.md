@@ -12,23 +12,30 @@
 
 ---
 
-Copy these 8 files into your Next.js/React game — no npm package needed.
+## Two integration paths
+
+| Path | How | Best for |
+|------|-----|----------|
+| **Path 1 — Copy files** | Copy source files into your project | Any React app, no package manager needed |
+| **Path 2 — npm install** | `pnpm add @psg1/core` (once published) | Monorepos, version-locked deps, cleaner updates |
+
+Both paths give you the exact same API. Path 2 is not yet published to npm — use Path 1 for now.
 
 ---
 
-## Files to copy
+## Path 1 — Files to copy
 
 ```
 FROM this repo → TO your game
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apps/web/src/hooks/useGamepad.ts        → src/hooks/useGamepad.ts
-apps/web/src/hooks/useGamepadMapper.ts  → src/hooks/useGamepadMapper.ts
-apps/web/src/lib/gamepad-nav.ts         → src/lib/gamepad-nav.ts
-apps/web/src/lib/psg1-mapper.ts         → src/lib/psg1-mapper.ts
-apps/web/src/components/
+packages/core/src/hooks/useGamepad.ts        → src/hooks/useGamepad.ts
+packages/core/src/hooks/useGamepadMapper.ts  → src/hooks/useGamepadMapper.ts
+packages/core/src/lib/gamepad-nav.ts         → src/lib/gamepad-nav.ts
+packages/core/src/lib/psg1-mapper.ts         → src/lib/psg1-mapper.ts
+packages/core/src/components/
   GamepadDebugBridge.tsx               → src/components/GamepadDebugBridge.tsx
   VirtualKeyboard.tsx                  → src/components/VirtualKeyboard.tsx
-apps/web/app/psg1.css                   → src/styles/psg1.css   (or app/psg1.css)
+packages/styles/psg1.css                   → src/styles/psg1.css   (or app/psg1.css)
 apps/web/public/art/                    → public/art/            (moju cursor sprites)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -52,7 +59,7 @@ In your `globals.css` (or equivalent):
 ```tsx
 // app/layout.tsx (or _app.tsx / root provider) — must be "use client"
 "use client";
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 
 export default function RootLayout({ children }) {
   useGamepadPoll();   // starts hardware polling + simulator key bridge
@@ -104,7 +111,7 @@ Or just drop `<GameApp>` from this repo around your children — it does all of 
 
 If your content root has a different class, tell the navigator once at boot:
 ```ts
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { configurePsg1 } from "@psg1/core";
 configurePsg1({ contentZone: ".my-game-main" });
 ```
 
@@ -113,7 +120,7 @@ configurePsg1({ contentZone: ".my-game-main" });
 ## Step 5 — Respond to semantic actions (optional)
 
 ```tsx
-import { useGamepadAction } from "@/hooks/useGamepad";
+import { useGamepadAction } from "@psg1/core";
 
 function MyComponent() {
   useGamepadAction((action) => {
@@ -168,7 +175,7 @@ Fires automatically when A is pressed while a text `<input>` has focus. No setup
 Instead of wiring everything manually, you can wrap your app with the included `GameApp` component:
 
 ```tsx
-import GameApp from "@/components/GameApp";
+import GameApp from "@psg1/core";
 
 export default function RootLayout({ children }) {
   return (
@@ -252,8 +259,8 @@ It sits on top of `useGamepadAction()`. Both run simultaneously — the mapper a
 ### Inline mapping (React)
 
 ```tsx
-import { useGamepadMapper, useGamepadCallbacks } from "@/hooks/useGamepadMapper";
-import type { Psg1Mapping } from "@/lib/psg1-mapper";
+import { useGamepadMapper, useGamepadCallbacks } from "@psg1/core";
+import type { Psg1Mapping } from "@psg1/core";
 
 // Define OUTSIDE the component — stable reference avoids re-installs.
 const MY_MAPPING: Psg1Mapping = {
@@ -282,7 +289,7 @@ function MyGameRoot() {
 ### JSON file mapping (load from URL)
 
 ```ts
-import { loadPsg1Mapping } from "@/lib/psg1-mapper";
+import { loadPsg1Mapping } from "@psg1/core";
 
 // Load async — call at app boot or on route change.
 const uninstall = await loadPsg1Mapping("/psg1.mapping.json");

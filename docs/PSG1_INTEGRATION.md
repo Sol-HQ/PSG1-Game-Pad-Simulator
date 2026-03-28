@@ -143,12 +143,12 @@ Copy exactly these 8 items. Nothing more is required.
 ```
 FROM this repo                                    → TO your game
 ───────────────────────────────────────────────────────────────────────────────
-apps/web/src/hooks/useGamepad.ts         → src/hooks/useGamepad.ts
-apps/web/src/hooks/useGamepadMapper.ts   → src/hooks/useGamepadMapper.ts
-apps/web/src/lib/gamepad-nav.ts          → src/lib/gamepad-nav.ts
-apps/web/src/lib/psg1-mapper.ts          → src/lib/psg1-mapper.ts
-apps/web/src/components/GamepadDebugBridge.tsx  → src/components/GamepadDebugBridge.tsx
-apps/web/src/components/VirtualKeyboard.tsx     → src/components/VirtualKeyboard.tsx
+packages/core/src/hooks/useGamepad.ts         → src/hooks/useGamepad.ts
+packages/core/src/hooks/useGamepadMapper.ts   → src/hooks/useGamepadMapper.ts
+packages/core/src/lib/gamepad-nav.ts          → src/lib/gamepad-nav.ts
+packages/core/src/lib/psg1-mapper.ts          → src/lib/psg1-mapper.ts
+packages/core/src/components/GamepadDebugBridge.tsx  → src/components/GamepadDebugBridge.tsx
+packages/core/src/components/VirtualKeyboard.tsx     → src/components/VirtualKeyboard.tsx
 packages/styles/psg1.css                 → src/styles/psg1.css  (or wherever globals live)
 apps/web/public/art/                     → public/art/           (entire folder)
 ───────────────────────────────────────────────────────────────────────────────
@@ -203,7 +203,7 @@ the lifetime of your app. It starts the `requestAnimationFrame` loop that reads
 ```tsx
 // app/layout.tsx
 "use client";
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   useGamepadPoll();
@@ -221,7 +221,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 // pages/_app.tsx
 "use client";
 import type { AppProps } from "next/app";
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 
 export default function App({ Component, pageProps }: AppProps) {
   useGamepadPoll();
@@ -285,7 +285,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ```tsx
 // app/layout.tsx
-import GameApp from "@/components/GameApp";
+import GameApp from "@psg1/core";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -347,7 +347,7 @@ If your content root already has a different class, tell the system once at app 
 
 ```ts
 // Call this BEFORE any gamepad events fire, e.g. inside a useEffect at your root.
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { configurePsg1 } from "@psg1/core";
 configurePsg1({ contentZone: ".my-game-content" });
 ```
 
@@ -362,7 +362,7 @@ you can skip this step. Wire it when you need buttons to trigger custom game log
 (e.g. Y = reload match list, Select = connect wallet, Start = return to main menu).
 
 ```tsx
-import { useGamepadAction } from "@/hooks/useGamepad";
+import { useGamepadAction } from "@psg1/core";
 
 function MyGameComponent() {
   useGamepadAction((action) => {
@@ -455,7 +455,7 @@ to what real PSG1 hardware fires.
 ### `useGamepadPoll()` — hardware polling loop
 
 ```ts
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 ```
 
 Mount **once** at app root. Starts the `requestAnimationFrame` loop.
@@ -470,7 +470,7 @@ Returns `void`. Has no props or return value to manage.
 ### `useGamepadAction(handler)` — event subscription
 
 ```ts
-import { useGamepadAction } from "@/hooks/useGamepad";
+import { useGamepadAction } from "@psg1/core";
 useGamepadAction((action: GamepadAction) => { /* ... */ });
 ```
 
@@ -512,7 +512,7 @@ type GamepadAction =
 ### `gamepadBus` — raw event bus
 
 ```ts
-import { gamepadBus } from "@/hooks/useGamepad";
+import { gamepadBus } from "@psg1/core";
 
 // Inject a synthetic action (e.g. from a test harness):
 gamepadBus?.dispatchEvent(
@@ -575,8 +575,8 @@ previous one.
 ### Inline React mapping (recommended for React/Next.js)
 
 ```tsx
-import { useGamepadMapper, useGamepadCallbacks } from "@/hooks/useGamepadMapper";
-import type { Psg1Mapping } from "@/lib/psg1-mapper";
+import { useGamepadMapper, useGamepadCallbacks } from "@psg1/core";
+import type { Psg1Mapping } from "@psg1/core";
 
 // Define OUTSIDE the component (or with useMemo) so the object reference is stable.
 // A new reference on every render would reinstall the mapper on every render.
@@ -609,7 +609,7 @@ function MyGameRoot() {
 ### Installing the mapper imperatively (non-React)
 
 ```ts
-import { installPsg1Mapper } from "@/lib/psg1-mapper";
+import { installPsg1Mapper } from "@psg1/core";
 
 const uninstall = installPsg1Mapper({
   version: "1",
@@ -646,7 +646,7 @@ publicly reachable URL (e.g. `/psg1.mapping.json` in your `public/` folder):
 Load it at app boot:
 
 ```ts
-import { loadPsg1Mapping } from "@/lib/psg1-mapper";
+import { loadPsg1Mapping } from "@psg1/core";
 
 // loadPsg1Mapping fetches the URL, parses it, and calls installPsg1Mapper().
 // Returns a Promise that resolves to the uninstall function.
@@ -706,7 +706,7 @@ events.
 ### Registering callbacks imperatively
 
 ```ts
-import { registerPsg1Callback, unregisterPsg1Callback } from "@/lib/psg1-mapper";
+import { registerPsg1Callback, unregisterPsg1Callback } from "@psg1/core";
 
 // Register before installing the mapper.
 registerPsg1Callback("openShop",    () => setShopOpen(true));
@@ -722,7 +722,7 @@ unregisterPsg1Callback("openShop");
 ### Reading the active mapping (debug)
 
 ```ts
-import { getActivePsg1Mapping } from "@/lib/psg1-mapper";
+import { getActivePsg1Mapping } from "@psg1/core";
 
 // Returns the currently installed Psg1Mapping, or null if no mapper is active.
 // The PSG1 simulator overlay's "Button Map" tab calls this to display the table.
@@ -783,7 +783,7 @@ import {
   closeVirtualKeyboard,  // closeVirtualKeyboard()  — dismiss and return to nav
   isVirtualKeyboardOpen, // isVirtualKeyboardOpen() → boolean
   dispatchVkAction,      // dispatchVkAction(id)    — route a button to VK internally
-} from "@/components/VirtualKeyboard";
+} from "@psg1/core";
 ```
 
 These are low-level — you should not need to call them directly.
@@ -1112,7 +1112,7 @@ for `.app-shell__main` by default.
 **Fix:** Either add `class="app-shell__main"` to your scrollable content container, or:
 
 ```ts
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { configurePsg1 } from "@psg1/core";
 configurePsg1({ contentZone: ".your-game-content" });
 ```
 

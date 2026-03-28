@@ -89,33 +89,33 @@ why it must be included.
 ```
 THIS REPO LOCATION                               PURPOSE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apps/web/src/hooks/useGamepad.ts            The controller brain. Polls the
+packages/core/src/hooks/useGamepad.ts            The controller brain. Polls the
                                             hardware 60×/sec. Also powers the
                                             simulator keyboard shortcuts.
 
-apps/web/src/hooks/useGamepadMapper.ts      React hook wrapper for the mapper.
+packages/core/src/hooks/useGamepadMapper.ts      React hook wrapper for the mapper.
                                             Installs/uninstalls routing rules
                                             when components mount/unmount.
 
-apps/web/src/lib/gamepad-nav.ts             Navigation engine. Handles D-pad
+packages/core/src/lib/gamepad-nav.ts             Navigation engine. Handles D-pad
                                             spatial focus, L1/R1 tab cycling,
                                             modal detection, scroll, and the
                                             moju cursor position.
 
-apps/web/src/lib/psg1-mapper.ts             Declarative router. Maps button
+packages/core/src/lib/psg1-mapper.ts             Declarative router. Maps button
                                             actions to dom-click / custom-event
                                             / postMessage / callback adapters.
 
-apps/web/src/components/GamepadDebugBridge.tsx
+packages/core/src/components/GamepadDebugBridge.tsx
                                             The floating overlay UI. Renders the
                                             on-screen PSG1 pad, handles key
                                             shortcuts, shows the settings panel.
 
-apps/web/src/components/VirtualKeyboard.tsx Console-style on-screen keyboard.
+packages/core/src/components/VirtualKeyboard.tsx Console-style on-screen keyboard.
                                             Opens automatically when A is pressed
                                             on a text input.
 
-apps/web/app/psg1.css                       All visual styles: focus rings, moju
+packages/styles/psg1.css                       All visual styles: focus rings, moju
                                             hover glow, overlay layout, cursor.
                                             Must be imported or nothing looks right.
 
@@ -140,10 +140,10 @@ Create the target folders if they do not exist, then copy:
 ```
 FROM (this repo)                                    TO (your game)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apps/web/src/hooks/useGamepad.ts         →   src/hooks/useGamepad.ts
-apps/web/src/hooks/useGamepadMapper.ts   →   src/hooks/useGamepadMapper.ts
-apps/web/src/lib/gamepad-nav.ts          →   src/lib/gamepad-nav.ts
-apps/web/src/lib/psg1-mapper.ts          →   src/lib/psg1-mapper.ts
+packages/core/src/hooks/useGamepad.ts         →   src/hooks/useGamepad.ts
+packages/core/src/hooks/useGamepadMapper.ts   →   src/hooks/useGamepadMapper.ts
+packages/core/src/lib/gamepad-nav.ts          →   src/lib/gamepad-nav.ts
+packages/core/src/lib/psg1-mapper.ts          →   src/lib/psg1-mapper.ts
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -152,8 +152,8 @@ apps/web/src/lib/psg1-mapper.ts          →   src/lib/psg1-mapper.ts
 ```
 FROM (this repo)                                         TO (your game)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apps/web/src/components/GamepadDebugBridge.tsx  →  src/components/GamepadDebugBridge.tsx
-apps/web/src/components/VirtualKeyboard.tsx     →  src/components/VirtualKeyboard.tsx
+packages/core/src/components/GamepadDebugBridge.tsx  →  src/components/GamepadDebugBridge.tsx
+packages/core/src/components/VirtualKeyboard.tsx     →  src/components/VirtualKeyboard.tsx
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -162,7 +162,7 @@ apps/web/src/components/VirtualKeyboard.tsx     →  src/components/VirtualKeybo
 ```
 FROM (this repo)               TO (your game)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-apps/web/app/psg1.css   →   src/styles/psg1.css
+packages/styles/psg1.css   →   src/styles/psg1.css
                               (OR app/psg1.css — wherever globals.css lives is fine)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -259,7 +259,7 @@ The App Router root is a Server Component by default. You must add a client wrap
 
 ```tsx
 // app/layout.tsx
-import GameApp from "@/components/GameApp";
+import GameApp from "@psg1/core";
 import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -277,7 +277,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 `GameApp` is a pre-built client component in this repo that calls `useGamepadPoll()`,
 mounts the overlay when `?gp` is in the URL, and handles hydration safety.
-Source: `apps/web/src/components/GameApp.tsx` → copy to `src/components/GameApp.tsx`.
+Source: `packages/core/src/components/GameApp.tsx` → copy to `src/components/GameApp.tsx`.
 
 **Option B — create a thin client shell manually:**
 
@@ -285,7 +285,7 @@ Source: `apps/web/src/components/GameApp.tsx` → copy to `src/components/GameAp
 // src/components/GameClientShell.tsx  ← NEW FILE you create
 "use client";
 import { useEffect, useState } from "react";
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 import dynamic from "next/dynamic";
 
 const GamepadDebugBridge = dynamic(
@@ -319,7 +319,7 @@ Then use it in your root layout:
 
 ```tsx
 // app/layout.tsx
-import { GameClientShell } from "@/components/GameClientShell";
+import { GameClientShell } from "@psg1/core";
 import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -345,7 +345,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 // pages/_app.tsx
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 import dynamic from "next/dynamic";
 import "../styles/globals.css";
 
@@ -502,7 +502,7 @@ If your element already has a different class and you cannot rename it, call thi
 once at startup instead (put it inside a `useEffect` in your root component):
 
 ```tsx
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { configurePsg1 } from "@psg1/core";
 
 // In your root component, inside useEffect(() => { ... }, []):
 configurePsg1({ contentZone: ".my-existing-game-class" });
@@ -546,7 +546,7 @@ The system dispatches named semantic actions. Your game components subscribe to 
 ### How to subscribe in a React component
 
 ```tsx
-import { useGamepadAction } from "@/hooks/useGamepad";
+import { useGamepadAction } from "@psg1/core";
 
 function GameScreen() {
   useGamepadAction((action) => {
@@ -667,7 +667,7 @@ Create `public/psg1.mapping.json`:
 Load it once at app startup (put this inside a `useEffect` at your root):
 
 ```tsx
-import { loadPsg1Mapping } from "@/lib/psg1-mapper";
+import { loadPsg1Mapping } from "@psg1/core";
 
 useEffect(() => {
   loadPsg1Mapping("/psg1.mapping.json");
@@ -713,7 +713,7 @@ window.addEventListener("message", (e) => {
 
 > **Security note:** Never set `targetOrigin: "*"` in a postMessage adapter unless you
 > understand the cross-origin security implications. The default (`window.location.origin`)
-> is always safe for same-origin games. See [`psg1-mapper.ts`](../apps/web/src/lib/psg1-mapper.ts)
+> is always safe for same-origin games. See [`psg1-mapper.ts`](../packages/core/src/lib/psg1-mapper.ts)
 > for the full security documentation.
 
 ---
@@ -1097,28 +1097,28 @@ fetch and create the following files in the target game repo.
 Do NOT modify any file content. Copy verbatim.
 
 File copies:
-  SOURCE: apps/web/src/hooks/useGamepad.ts
+  SOURCE: packages/core/src/hooks/useGamepad.ts
   DEST:   src/hooks/useGamepad.ts
 
-  SOURCE: apps/web/src/hooks/useGamepadMapper.ts
+  SOURCE: packages/core/src/hooks/useGamepadMapper.ts
   DEST:   src/hooks/useGamepadMapper.ts
 
-  SOURCE: apps/web/src/lib/gamepad-nav.ts
+  SOURCE: packages/core/src/lib/gamepad-nav.ts
   DEST:   src/lib/gamepad-nav.ts
 
-  SOURCE: apps/web/src/lib/psg1-mapper.ts
+  SOURCE: packages/core/src/lib/psg1-mapper.ts
   DEST:   src/lib/psg1-mapper.ts
 
-  SOURCE: apps/web/src/components/GamepadDebugBridge.tsx
+  SOURCE: packages/core/src/components/GamepadDebugBridge.tsx
   DEST:   src/components/GamepadDebugBridge.tsx
 
-  SOURCE: apps/web/src/components/VirtualKeyboard.tsx
+  SOURCE: packages/core/src/components/VirtualKeyboard.tsx
   DEST:   src/components/VirtualKeyboard.tsx
 
-  SOURCE: apps/web/src/components/GameApp.tsx
+  SOURCE: packages/core/src/components/GameApp.tsx
   DEST:   src/components/GameApp.tsx
 
-  SOURCE: apps/web/app/psg1.css
+  SOURCE: packages/styles/psg1.css
   DEST:   src/styles/psg1.css   (adjust if project uses a different styles folder)
 
   SOURCE: apps/web/public/art/moju-gold-16.png   DEST: public/art/moju-gold-16.png
@@ -1164,7 +1164,7 @@ Using the root file and framework identified in Step 1:
 
 IF framework is "Next.js App Router" AND root file has NO "use client":
   Wrap {children} in the existing root layout with <GameApp> from @/components/GameApp.
-  Add the import: import GameApp from "@/components/GameApp";
+  Add the import: import GameApp from "@psg1/core";
   The root layout file itself does not need "use client".
 
   Result should be:
@@ -1174,7 +1174,7 @@ IF framework is "Next.js App Router" AND root file has NO "use client":
 
 IF framework is "Next.js Pages Router" (_app.tsx):
   Add "use client" directive if not present (for Next.js 13 Pages Router).
-  Add: import { useGamepadPoll } from "@/hooks/useGamepad";
+  Add: import { useGamepadPoll } from "@psg1/core";
   Add: useGamepadPoll(); as the first hook call in the default export function.
 
 IF framework is "CRA" or "Vite" (src/main.tsx or src/index.tsx):
@@ -1256,7 +1256,7 @@ Task B — app-shell__main:
   If the element already has a well-known class that cannot be renamed:
     Do NOT add app-shell__main to the element.
     Instead, add this call inside a useEffect in the root client component:
-      import { configurePsg1 } from "@/lib/gamepad-nav";
+      import { configurePsg1 } from "@psg1/core";
       configurePsg1({ contentZone: ".the-existing-class" });
 
 Report: list of every element modified, with before/after className values.
@@ -1288,7 +1288,7 @@ Scan the entire game codebase for:
     - Navigation to root ("/") or home screen
 
 For each primary game screen component found, add:
-  import { useGamepadAction } from "@/hooks/useGamepad";
+  import { useGamepadAction } from "@psg1/core";
 
   useGamepadAction((action) => {
     switch (action) {
@@ -1331,7 +1331,7 @@ If non-React engine found:
        }
      }
   2. In the root client component, add:
-       import { loadPsg1Mapping } from "@/lib/psg1-mapper";
+       import { loadPsg1Mapping } from "@psg1/core";
        useEffect(() => { loadPsg1Mapping("/psg1.mapping.json"); }, []);
   3. Report which engine was found and what event names were used.
 
@@ -1352,7 +1352,7 @@ If errors are present, fix them in this priority order:
   1. "Cannot find module" errors → check @/* alias and file existence
   2. "use client" / Server Component errors → add client wrapper
   3. Type errors in new useGamepadAction handlers → add GamepadAction import
-     from "@/hooks/useGamepad"
+     from "@psg1/core"
   4. Any other errors → fix without modifying the copied PADSIM files
 
 Re-run npx tsc --noEmit after each fix until exit code is 0.
@@ -1403,14 +1403,14 @@ Report final result: exit code + any remaining warnings.
 | PlayGate submission checklist | [`PSG1/PLAYGATE.md`](../PSG1/PLAYGATE.md) |
 | Technical integration reference | [`docs/INTEGRATE.md`](./INTEGRATE.md) |
 | What PSG1 is / project origin | [`docs/PSG1_ORIGIN.md`](./PSG1_ORIGIN.md) |
-| Controller brain source | [`apps/web/src/hooks/useGamepad.ts`](../apps/web/src/hooks/useGamepad.ts) |
-| Navigation engine source | [`apps/web/src/lib/gamepad-nav.ts`](../apps/web/src/lib/gamepad-nav.ts) |
-| Mapper source + adapter types | [`apps/web/src/lib/psg1-mapper.ts`](../apps/web/src/lib/psg1-mapper.ts) |
-| Mapper React hooks | [`apps/web/src/hooks/useGamepadMapper.ts`](../apps/web/src/hooks/useGamepadMapper.ts) |
-| All visual styles | [`apps/web/app/psg1.css`](../apps/web/app/psg1.css) |
-| Pre-built root wrapper | [`apps/web/src/components/GameApp.tsx`](../apps/web/src/components/GameApp.tsx) |
-| Overlay component | [`apps/web/src/components/GamepadDebugBridge.tsx`](../apps/web/src/components/GamepadDebugBridge.tsx) |
-| Virtual keyboard component | [`apps/web/src/components/VirtualKeyboard.tsx`](../apps/web/src/components/VirtualKeyboard.tsx) |
+| Controller brain source | [`packages/core/src/hooks/useGamepad.ts`](../packages/core/src/hooks/useGamepad.ts) |
+| Navigation engine source | [`packages/core/src/lib/gamepad-nav.ts`](../packages/core/src/lib/gamepad-nav.ts) |
+| Mapper source + adapter types | [`packages/core/src/lib/psg1-mapper.ts`](../packages/core/src/lib/psg1-mapper.ts) |
+| Mapper React hooks | [`packages/core/src/hooks/useGamepadMapper.ts`](../packages/core/src/hooks/useGamepadMapper.ts) |
+| All visual styles | [`packages/styles/psg1.css`](../packages/styles/psg1.css) |
+| Pre-built root wrapper | [`packages/core/src/components/GameApp.tsx`](../packages/core/src/components/GameApp.tsx) |
+| Overlay component | [`packages/core/src/components/GamepadDebugBridge.tsx`](../packages/core/src/components/GamepadDebugBridge.tsx) |
+| Virtual keyboard component | [`packages/core/src/components/VirtualKeyboard.tsx`](../packages/core/src/components/VirtualKeyboard.tsx) |
 | Sample mapping JSON | [`apps/web/public/psg1.mapping.sample.json`](../apps/web/public/psg1.mapping.sample.json) |
 | GitHub repository | https://github.com/Sol-HQ/PSG1-Game-Pad-Simulator |
 | PlaySolana developer docs | https://developers.playsolana.com/ |

@@ -10,7 +10,7 @@
  *   callback      — named JS function           (registered via registerPsg1Callback)
  *
  * Usage (inline):
- *   import { installPsg1Mapper } from "@/lib/psg1-mapper";
+ *   import { installPsg1Mapper } from "@psg1/core";
  *   const uninstall = installPsg1Mapper({
  *     version: "1",
  *     actions: {
@@ -22,11 +22,11 @@
  *   uninstall(); // when tearing down
  *
  * Usage (JSON file):
- *   import { loadPsg1Mapping } from "@/lib/psg1-mapper";
+ *   import { loadPsg1Mapping } from "@psg1/core";
  *   const uninstall = await loadPsg1Mapping("/psg1.mapping.json");
  *
  * React hook:
- *   import { useGamepadMapper } from "@/hooks/useGamepadMapper";
+ *   import { useGamepadMapper } from "@psg1/core";
  *   useGamepadMapper(myMapping);   // auto-uninstalls on component unmount
  */
 

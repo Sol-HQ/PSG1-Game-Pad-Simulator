@@ -96,11 +96,11 @@ so any Solana game dev can drop it into their project without taking RPS with th
 
 | File | Born In | Extracted To |
 |------|---------|--------------|
-| `useGamepad.ts` | `R.P.S.v.2/apps/web/src/hooks/` | `PSG1-Game-Pad-Simulator/apps/web/src/hooks/` |
-| `gamepad-nav.ts` | `R.P.S.v.2/apps/web/src/lib/` | `PSG1-Game-Pad-Simulator/apps/web/src/lib/` — **enhanced with `configurePsg1()`** |
-| `GamepadDebugBridge.tsx` | `R.P.S.v.2/apps/web/src/components/` | `PSG1-Game-Pad-Simulator/apps/web/src/components/` — uses `<Image>` |
-| `VirtualKeyboard.tsx` | `R.P.S.v.2/apps/web/src/components/` | `PSG1-Game-Pad-Simulator/apps/web/src/components/` — identical |
-| `psg1.css` | RPS `globals.css` (extracted) | `packages/styles/psg1.css` + `apps/web/app/psg1.css` |
+| `useGamepad.ts` | `R.P.S.v.2/packages/core/src/hooks/` | `PSG1-Game-Pad-Simulator/packages/core/src/hooks/` |
+| `gamepad-nav.ts` | `R.P.S.v.2/packages/core/src/lib/` | `PSG1-Game-Pad-Simulator/packages/core/src/lib/` — **enhanced with `configurePsg1()`** |
+| `GamepadDebugBridge.tsx` | `R.P.S.v.2/packages/core/src/components/` | `PSG1-Game-Pad-Simulator/packages/core/src/components/` — uses `<Image>` |
+| `VirtualKeyboard.tsx` | `R.P.S.v.2/packages/core/src/components/` | `PSG1-Game-Pad-Simulator/packages/core/src/components/` — identical |
+| `psg1.css` | RPS `globals.css` (extracted) | `packages/styles/psg1.css` + `packages/styles/psg1.css` |
 | mojuju art assets | `R.P.S.v.2/public/art/` | `apps/web/public/art/` |
 
 ### Key Enhancement Made During Extraction
@@ -110,7 +110,7 @@ During extraction we added the `configurePsg1()` API so devs can point the navig
 own scrollable container:
 
 ```ts
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { configurePsg1 } from "@psg1/core";
 configurePsg1({ contentZone: ".my-game-main" }); // Call once at app boot
 ```
 
@@ -320,11 +320,11 @@ To wire PSG1 into a new project, an agent should:
 
 ### Step 1 — Copy files
 ```
-apps/web/src/hooks/useGamepad.ts         → src/hooks/useGamepad.ts
-apps/web/src/lib/gamepad-nav.ts          → src/lib/gamepad-nav.ts
-apps/web/src/components/GamepadDebugBridge.tsx → src/components/
-apps/web/src/components/VirtualKeyboard.tsx    → src/components/
-apps/web/app/psg1.css                    → src/styles/psg1.css
+packages/core/src/hooks/useGamepad.ts         → src/hooks/useGamepad.ts
+packages/core/src/lib/gamepad-nav.ts          → src/lib/gamepad-nav.ts
+packages/core/src/components/GamepadDebugBridge.tsx → src/components/
+packages/core/src/components/VirtualKeyboard.tsx    → src/components/
+packages/styles/psg1.css                    → src/styles/psg1.css
 apps/web/public/art/                     → public/art/
 ```
 
@@ -336,7 +336,7 @@ apps/web/public/art/                     → public/art/
 ### Step 3 — Mount at app root (once)
 ```tsx
 "use client";
-import { useGamepadPoll } from "@/hooks/useGamepad";
+import { useGamepadPoll } from "@psg1/core";
 import dynamic from "next/dynamic";
 
 const GamepadDebugBridge = dynamic(() => import("@/components/GamepadDebugBridge"), { ssr: false });
@@ -357,7 +357,7 @@ export default function RootLayout({ children }) {
 ### Step 4 — Configure the content zone
 ```ts
 // index.tsx or _app.tsx — call once before any renders
-import { configurePsg1 } from "@/lib/gamepad-nav";
+import { configurePsg1 } from "@psg1/core";
 configurePsg1({ contentZone: ".my-game-main" }); // your scrollable container
 ```
 
@@ -374,7 +374,7 @@ configurePsg1({ contentZone: ".my-game-main" }); // your scrollable container
 
 ### Step 6 — Subscribe to actions
 ```tsx
-import { useGamepadAction } from "@/hooks/useGamepad";
+import { useGamepadAction } from "@psg1/core";
 
 useGamepadAction((action) => {
   if (action === "confirm")  handleConfirm();

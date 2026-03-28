@@ -101,7 +101,7 @@ export const MODAL_SELECTOR =
  *   Default: ".app-shell__main" — override with your game's main content container.
  *
  * Example:
- *   import { configurePsg1 } from "@/lib/gamepad-nav";
+ *   import { configurePsg1 } from "@psg1/core";
  *   configurePsg1({ contentZone: ".my-game-main" });
  */
 let _contentZoneSelector = ".app-shell__main";
