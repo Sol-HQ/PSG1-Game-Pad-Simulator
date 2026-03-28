@@ -5,6 +5,7 @@ import {
   clearGpFocus,
   closeModal,
   cycleHeader,
+  findCancelButton,
   getGpFocused,
   isModalOpen,
   isTextEditable,
@@ -49,42 +50,6 @@ export type GamepadAction =
 
 /** Stick deadzone — from PSG1 hardware spec. */
 const DEADZONE = STICK_DEADZONE;
-
-/** Cancel-type keywords (case-insensitive). */
-const CANCEL_WORDS = /^(cancel|cancel transaction|no|close|back|dismiss|nevermind|not now)$/i;
-
-/**
- * Find the nearest visible cancel-type button in the CURRENT context only.
- * When a modal/dialog is open, searches ONLY within it — never behind it.
- * Never searches document.body to avoid clicking unrelated transaction buttons.
- */
-function findCancelButton(): HTMLElement | null {
-  // If a dialog/modal is open, search ONLY within it.
-  const dialog = document.querySelector<HTMLElement>("dialog[open], .modal--open, [role='dialog']");
-  if (dialog) {
-    for (const btn of dialog.querySelectorAll<HTMLElement>("button")) {
-      const text = (btn.textContent ?? "").trim();
-      if (CANCEL_WORDS.test(text) && btn.offsetParent !== null) return btn;
-    }
-    // No cancel-text match in modal — return null so caller uses closeModal() instead.
-    return null;
-  }
-
-  // No modal — search only the focused element's immediate section/form.
-  const focused = getGpFocused();
-  if (focused) {
-    const section = focused.closest(".profile-edit, .wallet-panel, .admin-reset, .admin-ban, form, section");
-    if (section) {
-      for (const btn of section.querySelectorAll<HTMLElement>("button")) {
-        const text = (btn.textContent ?? "").trim();
-        if (CANCEL_WORDS.test(text) && btn.offsetParent !== null) return btn;
-      }
-    }
-  }
-
-  // Never fall through to document.body — too dangerous (can click unrelated tx buttons).
-  return null;
-}
 
 /** Pointer speed multiplier — CSS pixels per frame at full deflection. */
 const POINTER_SPEED = 4;

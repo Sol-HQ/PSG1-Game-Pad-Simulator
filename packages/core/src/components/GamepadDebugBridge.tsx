@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { gamepadBus, useGamepadAction, type GamepadAction } from "../hooks/useGamepad";
+import { gamepadBus, type GamepadAction } from "../hooks/useGamepad";
 import {
   getGpFocused,
   cycleHeader,
@@ -13,6 +13,7 @@ import {
   isModalOpen,
   resolveInteractiveAt,
   isTextEditable,
+  findCancelButton,
 } from "../lib/gamepad-nav";
 import {
   isVirtualKeyboardOpen,
@@ -30,38 +31,6 @@ import {
 
 /** Pixels per press for left-stick simulator buttons. */
 const CURSOR_STEP = 18;
-
-/** Cancel-type keywords matched in button text (case-insensitive). */
-const CANCEL_WORDS = /^(cancel|no|close|back|dismiss|nevermind|not now)$/i;
-
-/**
- * Find the nearest visible cancel-type button in the CURRENT context only.
- * When a modal/dialog is open, searches ONLY within it - never behind it.
- * Never searches document.body to avoid clicking unrelated transaction buttons.
- */
-function findCancelButton(): HTMLElement | null {
-  const dialog = document.querySelector<HTMLElement>("dialog[open], .modal--open, [role='dialog']");
-  if (dialog) {
-    for (const btn of dialog.querySelectorAll<HTMLElement>("button")) {
-      const text = (btn.textContent ?? "").trim();
-      if (CANCEL_WORDS.test(text) && btn.offsetParent !== null) return btn;
-    }
-    return null;
-  }
-
-  const focused = getGpFocused();
-  if (focused) {
-    const section = focused.closest(".profile-edit, .wallet-panel, .admin-reset, .admin-ban, form, section");
-    if (section) {
-      for (const btn of section.querySelectorAll<HTMLElement>("button")) {
-        const text = (btn.textContent ?? "").trim();
-        if (CANCEL_WORDS.test(text) && btn.offsetParent !== null) return btn;
-      }
-    }
-  }
-
-  return null;
-}
 
 function dispatch(action: GamepadAction) {
   gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: action }));
@@ -360,14 +329,6 @@ export default function GamepadDebugBridge() {
       ...prev.slice(0, 49),
     ]);
   }, []);
-
-  // -- Live action log: listen to dispatched actions for enrichment --------
-  useGamepadAction((action) => {
-    // Already logged with richer detail from handlePress — only log
-    // dispatched-only actions (those not triggered by a specific button press).
-    // This catches programmatic dispatches from the hardware gamepad poll.
-    pushLog(`→ ${action}`);
-  });
 
   // -- Portal into modal dialogs so simulator stays interactive -----------
   useEffect(() => {

@@ -41,6 +41,7 @@ export {
   cycleHeader,
   cycleAll,
   scrollContent,
+  findCancelButton,
   FOCUSABLE,
   MODAL_SELECTOR,
 } from "./lib/gamepad-nav";

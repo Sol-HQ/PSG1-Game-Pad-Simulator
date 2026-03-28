@@ -351,3 +351,40 @@ export function isTextEditable(el: HTMLElement): el is HTMLInputElement | HTMLTe
   }
   return false;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CANCEL-BUTTON FINDER
+   Shared by both hardware-poll (useGamepad) and simulator (GamepadDebugBridge).
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Cancel-type keywords matched in button text (case-insensitive). */
+const CANCEL_WORDS = /^(cancel|cancel transaction|no|close|back|dismiss|nevermind|not now)$/i;
+
+/**
+ * Find the nearest visible cancel-type button in the CURRENT context only.
+ * When a modal/dialog is open, searches ONLY within it — never behind it.
+ * Never searches document.body to avoid clicking unrelated transaction buttons.
+ */
+export function findCancelButton(): HTMLElement | null {
+  const dialog = document.querySelector<HTMLElement>("dialog[open], .modal--open, [role='dialog']");
+  if (dialog) {
+    for (const btn of dialog.querySelectorAll<HTMLElement>("button")) {
+      const text = (btn.textContent ?? "").trim();
+      if (CANCEL_WORDS.test(text) && btn.offsetParent !== null) return btn;
+    }
+    return null;
+  }
+
+  const focused = getGpFocused();
+  if (focused) {
+    const section = focused.closest(".profile-edit, .wallet-panel, .admin-reset, .admin-ban, form, section");
+    if (section) {
+      for (const btn of section.querySelectorAll<HTMLElement>("button")) {
+        const text = (btn.textContent ?? "").trim();
+        if (CANCEL_WORDS.test(text) && btn.offsetParent !== null) return btn;
+      }
+    }
+  }
+
+  return null;
+}
