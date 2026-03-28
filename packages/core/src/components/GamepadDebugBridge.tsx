@@ -338,25 +338,29 @@ export default function GamepadDebugBridge() {
       {/* -- Settings panel - shown above controller when open -- */}
       {settingsOpen && !collapsed && (
         <div className="gp-sim__panel">
-          <div className="gp-sim__panel-header">
-            <span className="gp-sim__panel-title">PADSIM Map Settings</span>
-            <button
-              className="gp-sim__panel-close"
-              onClick={() => setSettingsOpen(false)}
-              aria-label="Close settings"
-            >X</button>
-          </div>
-
-          <div className="gp-sim__panel-tabs">
-            {(["log", "map", "guide"] as SettingsPanel[]).map((tab) => (
+          {/* Sticky header: title + tabs + close — always visible */}
+          <div className="gp-sim__panel-head">
+            <div className="gp-sim__panel-header">
+              <span className="gp-sim__panel-title">PADSIM Settings</span>
               <button
-                key={tab}
-                className={`gp-sim__panel-tab${activePanel === tab ? " gp-sim__panel-tab--active" : ""}`}
-                onClick={() => setActivePanel(tab)}
-              >
-                {tab === "log" ? "Live Log" : tab === "map" ? "Button Map" : "Integrate"}
-              </button>
-            ))}
+                className="gp-sim__panel-close"
+                onClick={() => setSettingsOpen(false)}
+                aria-label="Close settings panel"
+                title="Close this panel"
+              >&times;</button>
+            </div>
+
+            <div className="gp-sim__panel-tabs">
+              {(["log", "map", "guide"] as SettingsPanel[]).map((tab) => (
+                <button
+                  key={tab}
+                  className={`gp-sim__panel-tab${activePanel === tab ? " gp-sim__panel-tab--active" : ""}`}
+                  onClick={() => setActivePanel(tab)}
+                >
+                  {tab === "log" ? "Live Log" : tab === "map" ? "Button Map" : "Integrate"}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="gp-sim__panel-body">
@@ -440,6 +444,21 @@ export default function GamepadDebugBridge() {
                 <p className="gp-sim__guide-hint">
                   Full docs: <code>docs/INTEGRATE.md</code>
                 </p>
+                {/* Prominent back-to-tabs footer */}
+                <div className="gp-sim__guide-nav">
+                  <button
+                    className="gp-sim__guide-back"
+                    onClick={() => setActivePanel("log")}
+                  >
+                    &larr; Back to Live Log
+                  </button>
+                  <button
+                    className="gp-sim__guide-back"
+                    onClick={() => setActivePanel("map")}
+                  >
+                    &larr; Button Map
+                  </button>
+                </div>
               </div>
             )}
 
@@ -451,10 +470,15 @@ export default function GamepadDebugBridge() {
       {!collapsed && (
         <button
           className={`gp-sim__settings-btn${settingsOpen ? " gp-sim__settings-btn--open" : ""}`}
-          onClick={() => setSettingsOpen((s) => !s)}
-          aria-label={settingsOpen ? "Close PSG1 settings" : "Open PSG1 map settings"}
+          onClick={() => {
+            setSettingsOpen((s) => {
+              if (!s) setActivePanel("log");
+              return !s;
+            });
+          }}
+          aria-label={settingsOpen ? "Close settings panel" : "Open settings panel"}
         >
-          PADSIM Map Settings {settingsOpen ? "[-]" : "[+]"}
+          {settingsOpen ? "Close Settings \u25B2" : "PADSIM Settings \u25BC"}
         </button>
       )}
 

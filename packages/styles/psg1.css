@@ -142,6 +142,15 @@
   backdrop-filter: blur(10px);
 }
 
+/* Sticky head (title + tabs) — never scrolls away */
+.gp-sim__panel-head {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(12,12,18,0.98);
+}
+
 .gp-sim__panel-header {
   display: flex;
   align-items: center;
@@ -161,20 +170,25 @@
 }
 
 .gp-sim__panel-close {
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(212,175,55,0.25);
-  background: transparent;
-  color: rgba(212,175,55,0.5);
-  font-size: 11px;
+  border: 1.5px solid rgba(212,175,55,0.35);
+  background: rgba(212,175,55,0.06);
+  color: #e8c547;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
-.gp-sim__panel-close:hover { background: rgba(212,175,55,0.1); color: #e8c547; }
+.gp-sim__panel-close:hover {
+  background: rgba(212,175,55,0.15);
+  border-color: rgba(212,175,55,0.6);
+  transform: scale(1.1);
+}
 
 .gp-sim__panel-tabs {
   display: flex;
@@ -186,23 +200,31 @@
 
 .gp-sim__panel-tab {
   flex: 1;
-  padding: 7px 6px;
-  font-size: 9px;
+  padding: 8px 6px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2.5px solid transparent;
   color: rgba(212,175,55,0.4);
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
   margin-bottom: -1px;
   border-radius: 6px 6px 0 0;
 }
-.gp-sim__panel-tab--active,
-.gp-sim__panel-tab:hover { color: #e8c547; border-bottom-color: #d4af37; background: rgba(212,175,55,0.05); }
+.gp-sim__panel-tab--active {
+  color: #e8c547;
+  border-bottom-color: #d4af37;
+  background: rgba(212,175,55,0.08);
+}
+.gp-sim__panel-tab:hover:not(.gp-sim__panel-tab--active) {
+  color: rgba(212,175,55,0.7);
+  border-bottom-color: rgba(212,175,55,0.35);
+  background: rgba(212,175,55,0.03);
+}
 
 .gp-sim__panel-body {
   flex: 1;
@@ -330,6 +352,32 @@
   font-style: italic;
 }
 .gp-sim__guide-hint code { color: rgba(212,175,55,0.45); font-size: 9px; }
+
+/* Back-to-tabs navigation at bottom of Integrate tab */
+.gp-sim__guide-nav {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(212,175,55,0.15);
+}
+.gp-sim__guide-back {
+  flex: 1;
+  padding: 7px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #e8c547;
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.gp-sim__guide-back:hover {
+  background: rgba(212,175,55,0.15);
+  border-color: rgba(212,175,55,0.55);
+}
 
 /* ── Settings toggle button ────────────────────────────────── */
 
