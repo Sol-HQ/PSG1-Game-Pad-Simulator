@@ -87,7 +87,7 @@ function findCancelButton(): HTMLElement | null {
 }
 
 /** Pointer speed multiplier — CSS pixels per frame at full deflection. */
-const POINTER_SPEED = 6;
+const POINTER_SPEED = 4;
 
 /** Shared event bus for gamepad actions — singleton per window. */
 export const gamepadBus =

@@ -207,6 +207,28 @@ export default function VirtualKeyboard() {
     };
   }, [target, typeChar, backspace, confirm]);
 
+  // Debounce to prevent double-fire when both pointerdown and click fire
+  // from a real mouse/touch interaction. Programmatic .click() only fires
+  // the click event, so the onClick handler is the one that actually works
+  // for the simulator's pointer-click path (A / R3 over a VK key).
+  const lastKeyPress = useRef(0);
+  const fireKey = useCallback(
+    (key: string, ri: number, ci: number) => {
+      const now = performance.now();
+      if (now - lastKeyPress.current < 80) return; // skip duplicate within 80ms
+      lastKeyPress.current = now;
+      setRow(ri);
+      setCol(ci);
+      rowRef.current = ri;
+      colRef.current = ci;
+      if (key === "SPACE") typeChar(" ");
+      else if (key === "⌫") backspace();
+      else if (key === "✓ DONE") confirm();
+      else typeChar(key);
+    },
+    [typeChar, backspace, confirm],
+  );
+
   if (!target) return null;
 
   return (
@@ -234,17 +256,8 @@ export default function VirtualKeyboard() {
                   key={key}
                   className={`vk-key${active ? " vk-key--active" : ""}${key.length > 1 ? " vk-key--wide" : ""}`}
                   tabIndex={-1}
-                  onPointerDown={(e) => {
-                    e.stopPropagation();
-                    setRow(ri);
-                    setCol(ci);
-                    rowRef.current = ri;
-                    colRef.current = ci;
-                    if (key === "SPACE") typeChar(" ");
-                    else if (key === "⌫") backspace();
-                    else if (key === "✓ DONE") confirm();
-                    else typeChar(key);
-                  }}
+                  onPointerDown={(e) => { e.stopPropagation(); fireKey(key, ri, ci); }}
+                  onClick={(e) => { e.stopPropagation(); fireKey(key, ri, ci); }}
                 >
                   {display}
                 </button>

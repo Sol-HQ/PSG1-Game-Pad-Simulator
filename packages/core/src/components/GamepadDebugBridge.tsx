@@ -29,7 +29,7 @@ import {
 } from "../lib/psg1-hardware";
 
 /** Pixels per press for left-stick simulator buttons. */
-const CURSOR_STEP = 30;
+const CURSOR_STEP = 18;
 
 /** Cancel-type keywords matched in button text (case-insensitive). */
 const CANCEL_WORDS = /^(cancel|no|close|back|dismiss|nevermind|not now)$/i;
@@ -460,7 +460,7 @@ export default function GamepadDebugBridge() {
 
   /** L-stick / R-stick button with hold-to-repeat (continuous movement). */
   const HOLD_DELAY = 200;   // ms before repeat starts
-  const HOLD_RATE  = 40;    // ms between repeats (~25 fps)
+  const HOLD_RATE  = 60;    // ms between repeats (~16 fps, smoother)
   const stickBtn = (id: string, label: string, sub?: string) => {
     const startHold = (e: React.PointerEvent) => {
       e.stopPropagation();
@@ -502,28 +502,32 @@ export default function GamepadDebugBridge() {
       {/* -- Settings panel - shown above controller when open -- */}
       {settingsOpen && !collapsed && (
         <div className="gp-sim__panel">
-          {/* Sticky header: title + tabs + close — always visible */}
+          {/* Sticky header: back + tabs + close */}
           <div className="gp-sim__panel-head">
             <div className="gp-sim__panel-header">
-              <span className="gp-sim__panel-title">PADSIM Settings</span>
+              <button
+                className="gp-sim__panel-back"
+                onClick={() => setSettingsOpen(false)}
+                aria-label="Back to menu"
+                title="Back to menu"
+              >&larr;</button>
+              <div className="gp-sim__panel-tabs">
+                {(["log", "map", "guide"] as SettingsPanel[]).map((tab) => (
+                  <button
+                    key={tab}
+                    className={`gp-sim__panel-tab${activePanel === tab ? " gp-sim__panel-tab--active" : ""}`}
+                    onClick={() => setActivePanel(tab)}
+                  >
+                    {tab === "log" ? "Log" : tab === "map" ? "Map" : "Guide"}
+                  </button>
+                ))}
+              </div>
               <button
                 className="gp-sim__panel-close"
                 onClick={() => setSettingsOpen(false)}
                 aria-label="Close settings panel"
                 title="Close this panel"
               >&times;</button>
-            </div>
-
-            <div className="gp-sim__panel-tabs">
-              {(["log", "map", "guide"] as SettingsPanel[]).map((tab) => (
-                <button
-                  key={tab}
-                  className={`gp-sim__panel-tab${activePanel === tab ? " gp-sim__panel-tab--active" : ""}`}
-                  onClick={() => setActivePanel(tab)}
-                >
-                  {tab === "log" ? "Live Log" : tab === "map" ? "Button Map" : "Integrate"}
-                </button>
-              ))}
             </div>
           </div>
 
@@ -535,7 +539,7 @@ export default function GamepadDebugBridge() {
                 {actionLog.length === 0
                   ? <p className="gp-sim__log-empty">Press any button to see events here...</p>
                   : actionLog.map((entry, i) => (
-                      <p key={i} className={`gp-sim__log-entry${i === 0 ? " gp-sim__log-entry--new" : ""}`}>
+                      <p key={`${actionLog.length}-${i}`} className={`gp-sim__log-entry${i === 0 ? " gp-sim__log-entry--new" : ""}`}>
                         {entry}
                       </p>
                     ))
@@ -613,21 +617,6 @@ export default function GamepadDebugBridge() {
                 <p className="gp-sim__guide-hint">
                   Full docs: <code>docs/INTEGRATE.md</code>
                 </p>
-                {/* Prominent back-to-tabs footer */}
-                <div className="gp-sim__guide-nav">
-                  <button
-                    className="gp-sim__guide-back"
-                    onClick={() => setActivePanel("log")}
-                  >
-                    &larr; Back to Live Log
-                  </button>
-                  <button
-                    className="gp-sim__guide-back"
-                    onClick={() => setActivePanel("map")}
-                  >
-                    &larr; Button Map
-                  </button>
-                </div>
               </div>
             )}
 
@@ -635,20 +624,22 @@ export default function GamepadDebugBridge() {
         </div>
       )}
 
-      {/* -- Settings toggle button - between panel and controller -- */}
-      {!collapsed && (
-        <button
-          className={`gp-sim__settings-btn${settingsOpen ? " gp-sim__settings-btn--open" : ""}`}
-          onClick={() => {
-            setSettingsOpen((s) => {
-              if (!s) setActivePanel("log");
-              return !s;
-            });
-          }}
-          aria-label={settingsOpen ? "Close settings panel" : "Open settings panel"}
-        >
-          {settingsOpen ? "Close Settings \u25B2" : "PADSIM Settings \u25BC"}
-        </button>
+      {/* -- 3 quick-menu buttons — visible when panel is CLOSED -- */}
+      {!collapsed && !settingsOpen && (
+        <div className="gp-sim__quick-menu">
+          <button
+            className="gp-sim__quick-btn"
+            onClick={() => { setActivePanel("log"); setSettingsOpen(true); }}
+          >Live Log</button>
+          <button
+            className="gp-sim__quick-btn"
+            onClick={() => { setActivePanel("map"); setSettingsOpen(true); }}
+          >Button Map</button>
+          <button
+            className="gp-sim__quick-btn"
+            onClick={() => { setActivePanel("guide"); setSettingsOpen(true); }}
+          >Integrate</button>
+        </div>
       )}
 
       {/* -- Controller pad --------------------------------------- */}
@@ -680,8 +671,8 @@ export default function GamepadDebugBridge() {
             {/* -- SHOULDERS -- */}
             <div className="gp-sim__section-label">SHOULDERS</div>
             <div className="gp-sim__shoulders">
-              {btn("l1", "L1", "Hdr <")}
-              {btn("r1", "R1", "Hdr >")}
+              {btn("l1", "L", "Hdr \u25C0")}
+              {btn("r1", "R", "Hdr \u25B6")}
             </div>
 
             {/* -- D-PAD + FACE -- */}
@@ -689,20 +680,20 @@ export default function GamepadDebugBridge() {
               <div className="gp-sim__zone">
                 <div className="gp-sim__section-label">D-PAD</div>
                 <div className="gp-sim__dpad">
-                  {btn("up", "Up", "Nav")}
+                  {btn("up", "\u25B2", "Nav")}
                   <div className="gp-sim__dpad-row">
-                    {btn("left", "Lt", "Nav")}
+                    {btn("left", "\u25C0", "Nav")}
                     <div className="gp-sim__dpad-gap" />
-                    {btn("right", "Rt", "Nav")}
+                    {btn("right", "\u25B6", "Nav")}
                   </div>
-                  {btn("down", "Dn", "Nav")}
+                  {btn("down", "\u25BC", "Nav")}
                 </div>
               </div>
 
               <div className="gp-sim__zone">
                 <div className="gp-sim__section-label">FACE</div>
                 <div className="gp-sim__face">
-                  {btn("x", "X", "-")}
+                  {btn("x", "X", "Secondary")}
                   <div className="gp-sim__face-row">
                     {btn("y", "Y", "Refresh")}
                     {btn("a", "A", "Confirm")}
@@ -715,43 +706,43 @@ export default function GamepadDebugBridge() {
             {/* -- CENTER -- */}
             <div className="gp-sim__credit">By: I.O.</div>
             <div className="gp-sim__bottom">
-              {btn("select", "Sel", "Wallet")}
-              {btn("home", "Home", "Menu")}
+              {btn("select", "Select", "Wallet")}
+              {btn("home", "Home", "OS Home")}
               {btn("start", "Start", "Gate")}
             </div>
 
             {/* -- STICKS -- */}
             <div className="gp-sim__sticks">
               <div className="gp-sim__stick">
-                <div className="gp-sim__section-label">L-STICK</div>
+                <div className="gp-sim__section-label">L-STICK (ANALOG)</div>
                 <div className="gp-sim__stick-sublabel">Pointer (moju)</div>
                 <div className="gp-sim__dpad gp-sim__dpad--stick">
-                  {stickBtn("lstick-up", "Up", "Move")}
+                  {stickBtn("lstick-up", "\u25B2", "Move")}
                   <div className="gp-sim__dpad-row">
-                    {stickBtn("lstick-left", "Lt", "Move")}
+                    {stickBtn("lstick-left", "\u25C0", "Move")}
                     {btn("l3", "L3", "Push")}
-                    {stickBtn("lstick-right", "Rt", "Move")}
+                    {stickBtn("lstick-right", "\u25B6", "Move")}
                   </div>
-                  {stickBtn("lstick-down", "Dn", "Move")}
+                  {stickBtn("lstick-down", "\u25BC", "Move")}
                 </div>
               </div>
 
               <div className="gp-sim__stick">
-                <div className="gp-sim__section-label">R-STICK</div>
+                <div className="gp-sim__section-label">R-STICK (ANALOG)</div>
                 <div className="gp-sim__stick-sublabel">Scroll / Nav</div>
                 <div className="gp-sim__dpad gp-sim__dpad--stick">
-                  {stickBtn("rstick-up", "Up", "Scroll")}
+                  {stickBtn("rstick-up", "\u25B2", "Scroll")}
                   <div className="gp-sim__dpad-row">
-                    {stickBtn("rstick-left", "Lt", "Nav")}
+                    {stickBtn("rstick-left", "\u25C0", "Nav")}
                     {btn("r3", "R3", "Click")}
-                    {stickBtn("rstick-right", "Rt", "Nav")}
+                    {stickBtn("rstick-right", "\u25B6", "Nav")}
                   </div>
-                  {stickBtn("rstick-down", "Dn", "Scroll")}
+                  {stickBtn("rstick-down", "\u25BC", "Scroll")}
                 </div>
               </div>
             </div>
 
-            {/* Zone legend — derived from hardware spec */}
+            {/* Zone legend */}
             <div className="gp-sim__mode">
               {PSG1_DEVICE.name} | L/R Shoulders | D-Pad | A/B/X/Y | L3/R3 | No L2/R2
             </div>
