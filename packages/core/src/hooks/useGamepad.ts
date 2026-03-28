@@ -7,7 +7,9 @@ import {
   cycleHeader,
   getGpFocused,
   isModalOpen,
+  isTextEditable,
   MODAL_SELECTOR,
+  resolveInteractiveAt,
   scrollContent,
   spatialNav,
 } from "../lib/gamepad-nav";
@@ -146,11 +148,10 @@ export function useGamepadPoll() {
         if (lastHoveredEl) { lastHoveredEl.classList.remove("gp-moju-hover"); lastHoveredEl = null; }
         return;
       }
-      const el = document.elementFromPoint(pointerPos.current.x, pointerPos.current.y);
-      const target = el instanceof HTMLElement ? el.closest<HTMLElement>("button,a,[tabindex=\"0\"],input,select") : null;
+      const target = resolveInteractiveAt(pointerPos.current.x, pointerPos.current.y);
       if (target === lastHoveredEl) return;
       if (lastHoveredEl) lastHoveredEl.classList.remove("gp-moju-hover");
-      if (target && !target.closest(".gp-sim")) { target.classList.add("gp-moju-hover"); lastHoveredEl = target; }
+      if (target) { target.classList.add("gp-moju-hover"); lastHoveredEl = target; }
       else lastHoveredEl = null;
     };
 
@@ -268,8 +269,14 @@ export function useGamepadPoll() {
               // Focus stays on the clicked element — user moves it with D-pad
             }
           } else if (pointerPos.current.visible) {
-            const el = document.elementFromPoint(pointerPos.current.x, pointerPos.current.y);
-            if (el instanceof HTMLElement) el.click();
+            const target = resolveInteractiveAt(pointerPos.current.x, pointerPos.current.y);
+            if (target) {
+              if (isTextEditable(target)) {
+                openVirtualKeyboard(target);
+              } else {
+                target.click();
+              }
+            }
           } else {
             gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: "confirm" }));
           }
@@ -313,10 +320,20 @@ export function useGamepadPoll() {
         if ((gp.buttons[11]?.pressed ?? false) && !prev.current[11]) {
           const focused = getGpFocused();
           if (focused && document.contains(focused)) {
-            focused.click();
+            if (isTextEditable(focused)) {
+              openVirtualKeyboard(focused);
+            } else {
+              focused.click();
+            }
           } else if (pointerPos.current.visible) {
-            const el = document.elementFromPoint(pointerPos.current.x, pointerPos.current.y);
-            if (el instanceof HTMLElement) el.click();
+            const target = resolveInteractiveAt(pointerPos.current.x, pointerPos.current.y);
+            if (target) {
+              if (isTextEditable(target)) {
+                openVirtualKeyboard(target);
+              } else {
+                target.click();
+              }
+            }
           }
         }
 

@@ -11,6 +11,8 @@ import {
   scrollContent,
   closeModal,
   isModalOpen,
+  resolveInteractiveAt,
+  isTextEditable,
 } from "../lib/gamepad-nav";
 import {
   isVirtualKeyboardOpen,
@@ -102,8 +104,14 @@ function pressButton(id: string) {
         const cursor = document.querySelector<HTMLElement>(".gamepad-cursor");
         if (cursor && cursor.style.opacity !== "0") {
           const rect = cursor.getBoundingClientRect();
-          const el = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-          if (el instanceof HTMLElement) el.click();
+          const target = resolveInteractiveAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          if (target) {
+            if (isTextEditable(target)) {
+              openVirtualKeyboard(target);
+            } else {
+              target.click();
+            }
+          }
         } else {
           dispatch("confirm");
         }
@@ -139,12 +147,25 @@ function pressButton(id: string) {
 
     case "r3": {
       const focused = document.querySelector<HTMLElement>(".gp-focus");
-      if (focused && document.contains(focused)) { focused.click(); break; }
+      if (focused && document.contains(focused)) {
+        if (isTextEditable(focused)) {
+          openVirtualKeyboard(focused);
+        } else {
+          focused.click();
+        }
+        break;
+      }
       const cursor = document.querySelector<HTMLElement>(".gamepad-cursor");
       if (cursor && cursor.style.opacity !== "0") {
         const rect = cursor.getBoundingClientRect();
-        const el = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-        if (el instanceof HTMLElement) el.click();
+        const target = resolveInteractiveAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        if (target) {
+          if (isTextEditable(target)) {
+            openVirtualKeyboard(target);
+          } else {
+            target.click();
+          }
+        }
       }
       break;
     }

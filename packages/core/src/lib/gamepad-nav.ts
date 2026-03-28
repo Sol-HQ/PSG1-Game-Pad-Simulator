@@ -307,3 +307,54 @@ export function closeModal(): boolean {
   if (overlay) { overlay.click(); return true; }
   return false;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOJUJU (L-stick cursor) HELPERS
+   Shared by both hardware-poll (useGamepad) and simulator (GamepadDebugBridge).
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Elements the mojuju cursor can highlight & click. */
+export const INTERACTIVE_SELECTOR =
+  'button:not(:disabled),a[href],[tabindex="0"],input:not(:disabled):not([type="hidden"]),select:not(:disabled),textarea:not(:disabled)';
+
+/**
+ * Resolve the interactive element under a screen coordinate.
+ * 1. Direct .closest() match (covers element itself or ancestor)
+ * 2. Fallback: cursor over a <label> wrapping a control — find the control inside
+ * Returns null only when nothing interactive is near the point.
+ */
+export function resolveInteractiveAt(x: number, y: number): HTMLElement | null {
+  const raw = document.elementFromPoint(x, y);
+  if (!(raw instanceof HTMLElement)) return null;
+
+  // Direct interactive match (element or ancestor)
+  const direct = raw.closest<HTMLElement>(INTERACTIVE_SELECTOR);
+  if (direct && !direct.closest(".gp-sim")) return direct;
+
+  // Fallback: cursor over <label> text that wraps a control (e.g. checkbox toggles)
+  const label = raw.closest<HTMLLabelElement>("label");
+  if (label) {
+    const ctrl = label.querySelector<HTMLElement>(INTERACTIVE_SELECTOR);
+    if (ctrl) return ctrl;
+  }
+
+  // Fallback: cursor over a sibling label's text — check parent container
+  const parent = raw.parentElement;
+  if (parent) {
+    const ctrl = parent.querySelector<HTMLElement>(INTERACTIVE_SELECTOR);
+    if (ctrl) return ctrl;
+  }
+
+  return null;
+}
+
+/** True if the element is a text input or textarea that should open the VK. */
+export function isTextEditable(el: HTMLElement): el is HTMLInputElement | HTMLTextAreaElement {
+  const tag = el.tagName;
+  if (tag === "TEXTAREA") return true;
+  if (tag === "INPUT") {
+    const t = (el as HTMLInputElement).type?.toLowerCase() ?? "text";
+    return !["checkbox", "radio", "submit", "button", "reset", "file", "range", "color"].includes(t);
+  }
+  return false;
+}
