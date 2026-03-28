@@ -399,6 +399,18 @@ export default function GamepadDebugBridge() {
   }, []);
 
   const handlePress = useCallback((id: string) => {
+    // -- If the settings panel is open, B or Y closes it instead of
+    //    forwarding to the app.  This prevents getting "stuck" in the
+    //    panel with no gamepad-reachable exit.
+    if (settingsOpen && (id === "b" || id === "y")) {
+      pushLog(`${btnLabel(id)} → Close settings panel`);
+      setSettingsOpen(false);
+      setFlash(id);
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+      flashTimer.current = setTimeout(() => setFlash(null), 150);
+      return;
+    }
+
     const target = describeTarget();
     const label = btnLabel(id);
     const action = btnAction(id);
@@ -408,7 +420,7 @@ export default function GamepadDebugBridge() {
     setFlash(id);
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setFlash(null), 150);
-  }, [describeTarget, pushLog]);
+  }, [describeTarget, pushLog, settingsOpen]);
 
   // -- Keyboard bridge -----------------------------------------------------
   useEffect(() => {
