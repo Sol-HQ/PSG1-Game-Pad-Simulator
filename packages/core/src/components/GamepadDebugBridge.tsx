@@ -69,6 +69,17 @@ function moveCursor(dx: number, dy: number) {
 /* -- Shared button press handler ------------------------------- */
 
 function pressButton(id: string) {
+  // L-stick cursor movement always works, even when VK is open
+  if (id.startsWith("lstick-")) {
+    switch (id) {
+      case "lstick-up": moveCursor(0, -CURSOR_STEP); break;
+      case "lstick-down": moveCursor(0, CURSOR_STEP); break;
+      case "lstick-left": moveCursor(-CURSOR_STEP, 0); break;
+      case "lstick-right": moveCursor(CURSOR_STEP, 0); break;
+    }
+    return;
+  }
+
   if (isVirtualKeyboardOpen()) {
     dispatchVkAction(id);
     return;
@@ -174,11 +185,6 @@ function pressButton(id: string) {
       dispatch("home");
       break;
 
-    case "lstick-up": moveCursor(0, -CURSOR_STEP); break;
-    case "lstick-down": moveCursor(0, CURSOR_STEP); break;
-    case "lstick-left": moveCursor(-CURSOR_STEP, 0); break;
-    case "lstick-right": moveCursor(CURSOR_STEP, 0); break;
-
     case "rstick-up": scrollContent("up"); break;
     case "rstick-down": scrollContent("down"); break;
     case "rstick-left": spatialNav("left"); break;
@@ -266,12 +272,79 @@ export default function GamepadDebugBridge() {
   const flashTimer = useRef<ReturnType<typeof setTimeout>>();
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
-  // -- Live action log for the settings panel -----------------------------
-  useGamepadAction((action) => {
+  // -- Describe the current target for richer logs -----------------------
+  const describeTarget = useCallback((): string => {
+    const focused = getGpFocused();
+    if (focused && document.contains(focused)) {
+      const tag = focused.tagName;
+      const text = (focused.textContent ?? "").trim().slice(0, 30);
+      const label = focused.getAttribute("aria-label") ?? "";
+      if (tag === "INPUT") {
+        const t = (focused as HTMLInputElement).type ?? "text";
+        const name = focused.closest("label")?.textContent?.trim().slice(0, 20) ?? (focused as HTMLInputElement).name ?? "";
+        return t === "checkbox" ? `checkbox "${name}"` : `input "${name}"`;
+      }
+      if (tag === "TEXTAREA") return `textarea "${focused.closest("label")?.textContent?.trim().slice(0, 20) ?? ""}"`;
+      if (tag === "BUTTON" || tag === "A") return `"${label || text}"`;
+      if (tag === "SELECT") return `select "${(focused as HTMLSelectElement).name}"`;
+      return text ? `"${text}"` : tag.toLowerCase();
+    }
+    // Check moju hover
+    const cursor = document.querySelector<HTMLElement>(".gamepad-cursor");
+    if (cursor && cursor.style.opacity !== "0") {
+      const rect = cursor.getBoundingClientRect();
+      const t = resolveInteractiveAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      if (t) {
+        const text = (t.textContent ?? "").trim().slice(0, 30);
+        return `moju → "${text}"`;
+      }
+      return "moju (no target)";
+    }
+    return "";
+  }, []);
+
+  // Button ID → human-readable label
+  const btnLabel = (id: string): string => {
+    const map: Record<string, string> = {
+      a: "A", b: "B", x: "X", y: "Y",
+      l1: "L1", r1: "R1", l3: "L3", r3: "R3",
+      up: "D-Up", down: "D-Down", left: "D-Left", right: "D-Right",
+      select: "Select", start: "Start", home: "Home",
+      "lstick-up": "L↑", "lstick-down": "L↓", "lstick-left": "L←", "lstick-right": "L→",
+      "rstick-up": "R↑", "rstick-down": "R↓", "rstick-left": "R←", "rstick-right": "R→",
+    };
+    return map[id] ?? id.toUpperCase();
+  };
+
+  // Button ID → action name
+  const btnAction = (id: string): string => {
+    const map: Record<string, string> = {
+      a: "Confirm", b: "Back/Cancel", x: "Reserved", y: "Refresh",
+      l1: "Cycle Tab ←", r1: "Cycle Tab →",
+      up: "Nav ↑", down: "Nav ↓", left: "Nav ←", right: "Nav →",
+      select: "Wallet", start: "Gate/Menu", home: "Menu",
+      l3: "L3", r3: "Click Cursor",
+      "lstick-up": "Pointer ↑", "lstick-down": "Pointer ↓",
+      "lstick-left": "Pointer ←", "lstick-right": "Pointer →",
+      "rstick-up": "Scroll ↑", "rstick-down": "Scroll ↓",
+      "rstick-left": "Nav ←", "rstick-right": "Nav →",
+    };
+    return map[id] ?? id;
+  };
+
+  const pushLog = useCallback((entry: string) => {
     setActionLog((prev) => [
-      `${new Date().toLocaleTimeString("en-US", { hour12: false })} - ${action}`,
-      ...prev.slice(0, 29),
+      `${new Date().toLocaleTimeString("en-US", { hour12: false })} ${entry}`,
+      ...prev.slice(0, 49),
     ]);
+  }, []);
+
+  // -- Live action log: listen to dispatched actions for enrichment --------
+  useGamepadAction((action) => {
+    // Already logged with richer detail from handlePress — only log
+    // dispatched-only actions (those not triggered by a specific button press).
+    // This catches programmatic dispatches from the hardware gamepad poll.
+    pushLog(`→ ${action}`);
   });
 
   // -- Portal into modal dialogs so simulator stays interactive -----------
@@ -304,11 +377,16 @@ export default function GamepadDebugBridge() {
   }, []);
 
   const handlePress = useCallback((id: string) => {
+    const target = describeTarget();
+    const label = btnLabel(id);
+    const action = btnAction(id);
+    const detail = target ? ` on ${target}` : "";
+    pushLog(`${label} → ${action}${detail}`);
     pressButton(id);
     setFlash(id);
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setFlash(null), 150);
-  }, []);
+  }, [describeTarget, pushLog]);
 
   // -- Keyboard bridge -----------------------------------------------------
   useEffect(() => {

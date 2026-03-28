@@ -258,7 +258,18 @@ export default function GameSandbox() {
 
   // ── Gamepad action listener ────────────────────────────────────
   useGamepadAction((action) => {
-    pushLog(`[GP] ${action}`);
+    const actionLabels: Record<string, string> = {
+      confirm: "A → Confirm",
+      back: "B → Back",
+      refresh: "Y → Refresh",
+      select: "Select → Wallet",
+      start: "Start → Gate/Menu",
+      home: "Home → App Menu",
+      l3: "L3 → Stick Press",
+      r3: "R3 → Click Cursor",
+      x: "X → Reserved",
+    };
+    pushLog(`[GP] ${actionLabels[action] ?? action}`);
     if (action === "refresh") {
       if (tab === "game" && mode === "gameover") newRound();
     }
@@ -267,7 +278,7 @@ export default function GameSandbox() {
     }
     if (action === "select") {
       setWalletConnected((c) => !c);
-      pushLog(walletConnected ? "Wallet disconnected" : "Wallet connected");
+      pushLog(`Wallet: ${walletConnected ? "connected → disconnected" : "disconnected → connected"}`);
     }
   });
 
@@ -292,7 +303,7 @@ export default function GameSandbox() {
             <button
               key={t}
               className={`demo-tab gp-cycleable${tab === t ? " demo-tab--active" : ""}`}
-              onClick={() => { setTab(t); pushLog(`Tab: ${t}`); }}
+              onClick={() => { setTab(t); pushLog(`L1/R1 → Tab: ${t}`); }}
             >
               {t === "game" ? "Game" : t === "leaderboard" ? "Leaderboard" : t === "profile" ? "Profile" : "Settings"}
             </button>
@@ -476,22 +487,22 @@ export default function GameSandbox() {
               </p>
               <div className="sandbox-settings-list">
                 <label className="sandbox-toggle">
-                  <input type="checkbox" checked={soundOn} onChange={() => { setSoundOn((s) => !s); pushLog(`Sound: ${!soundOn}`); }} />
+                  <input type="checkbox" checked={soundOn} onChange={() => { setSoundOn((s) => !s); pushLog(`Sound: ${soundOn ? 'on → off' : 'off → on'}`); }} />
                   <span className="sandbox-toggle__label">Sound Effects</span>
                   <span className="sandbox-toggle__hint">Play audio on moves and wins</span>
                 </label>
                 <label className="sandbox-toggle">
-                  <input type="checkbox" checked={vibration} onChange={() => { setVibration((s) => !s); pushLog(`Vibration: ${!vibration}`); }} />
+                  <input type="checkbox" checked={vibration} onChange={() => { setVibration((s) => !s); pushLog(`Vibration: ${vibration ? 'on → off' : 'off → on'}`); }} />
                   <span className="sandbox-toggle__label">Vibration</span>
                   <span className="sandbox-toggle__hint">Haptic feedback on button press</span>
                 </label>
                 <label className="sandbox-toggle">
-                  <input type="checkbox" checked={showHints} onChange={() => { setShowHints((s) => !s); pushLog(`Hints: ${!showHints}`); }} />
+                  <input type="checkbox" checked={showHints} onChange={() => { setShowHints((s) => !s); pushLog(`Hints: ${showHints ? 'on → off' : 'off → on'}`); }} />
                   <span className="sandbox-toggle__label">Show Hints</span>
                   <span className="sandbox-toggle__hint">Display control hints below the board</span>
                 </label>
                 <label className="sandbox-toggle">
-                  <input type="checkbox" checked={darkMode} onChange={() => { setDarkMode((s) => !s); pushLog(`Dark mode: ${!darkMode}`); }} />
+                  <input type="checkbox" checked={darkMode} onChange={() => { setDarkMode((s) => !s); pushLog(`Dark Mode: ${darkMode ? 'on → off' : 'off → on'}`); }} />
                   <span className="sandbox-toggle__label">Dark Mode</span>
                   <span className="sandbox-toggle__hint">Toggle between dark and light theme</span>
                 </label>

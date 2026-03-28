@@ -338,13 +338,6 @@ export function resolveInteractiveAt(x: number, y: number): HTMLElement | null {
     if (ctrl) return ctrl;
   }
 
-  // Fallback: cursor over a sibling label's text — check parent container
-  const parent = raw.parentElement;
-  if (parent) {
-    const ctrl = parent.querySelector<HTMLElement>(INTERACTIVE_SELECTOR);
-    if (ctrl) return ctrl;
-  }
-
   return null;
 }
 

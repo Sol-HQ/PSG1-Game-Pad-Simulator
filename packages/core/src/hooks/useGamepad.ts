@@ -190,7 +190,7 @@ export function useGamepadPoll() {
         pointerPos.current.visible = false;
         cursor.style.opacity = "0";
         if (lastHoveredEl) { lastHoveredEl.classList.remove("gp-moju-hover"); lastHoveredEl = null; }
-      }, 3000);
+      }, 10000);
     };
     gamepadBus?.addEventListener("gamepad-cursor-move", onCursorMove);
 
@@ -211,7 +211,8 @@ export function useGamepadPoll() {
         const modalSafe = modal && performance.now() - dialogOpenAt > DIALOG_GRACE_MS;
 
         // ── Virtual keyboard intercept ──
-        // When the VK is open, route D-pad / A / B / Y to it and skip normal nav.
+        // When the VK is open, route D-pad / A / B / Y to it.
+        // Left stick pointer still works so you can move the cursor over VK keys.
         const vkOpen = isVirtualKeyboardOpen();
         if (vkOpen) {
           if ((gp.buttons[12]?.pressed ?? false) && !prev.current[12]) dispatchVkAction("up");
@@ -222,6 +223,22 @@ export function useGamepadPoll() {
           if ((gp.buttons[0]?.pressed ?? false) && !prev.current[0]) dispatchVkAction("b");
           if ((gp.buttons[2]?.pressed ?? false) && !prev.current[2]) dispatchVkAction("y");
           if ((gp.buttons[9]?.pressed ?? false) && !prev.current[9]) dispatchVkAction("start");
+
+          // Left stick pointer — keep cursor moving even with VK open
+          const vlx = gp.axes[0] ?? 0;
+          const vly = gp.axes[1] ?? 0;
+          if (Math.sqrt(vlx * vlx + vly * vly) > DEADZONE) {
+            pointerPos.current.x = Math.max(16, Math.min(window.innerWidth - 16, pointerPos.current.x + vlx * POINTER_SPEED));
+            pointerPos.current.y = Math.max(16, Math.min(window.innerHeight - 16, pointerPos.current.y + vly * POINTER_SPEED));
+            if (!pointerPos.current.visible) { pointerPos.current.visible = true; cursor.style.opacity = "1"; }
+            cursor.style.transform = `translate(${pointerPos.current.x}px, ${pointerPos.current.y}px) translate(-50%, -50%)`;
+            updateMojuHover();
+            if (hideTimer) clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+              pointerPos.current.visible = false; cursor.style.opacity = "0";
+              if (lastHoveredEl) { lastHoveredEl.classList.remove("gp-moju-hover"); lastHoveredEl = null; }
+            }, 10000);
+          }
 
           // Still update prev state so edge detection works after VK closes
           const btns = gp.buttons;
@@ -383,7 +400,7 @@ export function useGamepadPoll() {
             pointerPos.current.visible = false;
             cursor.style.opacity = "0";
             if (lastHoveredEl) { lastHoveredEl.classList.remove("gp-moju-hover"); lastHoveredEl = null; }
-          }, 3000);
+          }, 10000);
         }
 
         // ── Right stick: up/down continuous scroll, left/right spatial nav ──
