@@ -18,6 +18,16 @@ import {
   openVirtualKeyboard,
   dispatchVkAction,
 } from "../components/VirtualKeyboard";
+import {
+  BTN_A, BTN_B, BTN_X, BTN_Y,
+  BTN_L1, BTN_R1,
+  BTN_SELECT, BTN_START,
+  BTN_L3, BTN_R3,
+  BTN_DPAD_UP, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT,
+  BTN_HOME,
+  AXIS_LX, AXIS_LY, AXIS_RX, AXIS_RY,
+  STICK_DEADZONE,
+} from "../lib/psg1-hardware";
 
 /**
  * Gamepad actions dispatched by the polling loop.
@@ -27,18 +37,18 @@ import {
  * is handled internally — only semantic actions are dispatched.
  */
 export type GamepadAction =
-  | "confirm"    // A  → click focused element
-  | "back"       // B  → cancel / go back
-  | "x"          // X  → context action (reserved)
-  | "refresh"    // Y  → refresh current zone
-  | "select"     // Select → wallet connect/disconnect
-  | "start"      // Start → navigate to terms / mode-select gate
-  | "l3"         // L3 → left stick press (reserved)
-  | "r3"         // R3 → secondary confirm (click, no wallet)
-  | "home";      // Home → Solana logo / app menu (reserved)
+  | "confirm"    // A  (btn1, right face)  → click focused element
+  | "back"       // B  (btn0, bottom face) → cancel / go back
+  | "x"          // X  (btn3, top face)    → context action (reserved)
+  | "refresh"    // Y  (btn2, left face)   → refresh current zone
+  | "select"     // Select (btn8)          → wallet connect/disconnect
+  | "start"      // Start  (btn9)          → navigate to terms / mode-select gate
+  | "l3"         // L3 (btn10)             → left stick press (reserved)
+  | "r3"         // R3 (btn11)             → secondary confirm (click, no wallet)
+  | "home";      // Home (btn16)           → NOT accessible on real PSG1
 
-/** Stick deadzone — ignore small drifts below this threshold (0–1). */
-const DEADZONE = 0.25;
+/** Stick deadzone — from PSG1 hardware spec. */
+const DEADZONE = STICK_DEADZONE;
 
 /** Cancel-type keywords (case-insensitive). */
 const CANCEL_WORDS = /^(cancel|cancel transaction|no|close|back|dismiss|nevermind|not now)$/i;
@@ -215,24 +225,24 @@ export function useGamepadPoll() {
         // Left stick pointer still works so you can move the cursor over VK keys.
         const vkOpen = isVirtualKeyboardOpen();
         if (vkOpen) {
-          if ((gp.buttons[12]?.pressed ?? false) && !prev.current[12]) dispatchVkAction("up");
-          if ((gp.buttons[13]?.pressed ?? false) && !prev.current[13]) dispatchVkAction("down");
-          if ((gp.buttons[14]?.pressed ?? false) && !prev.current[14]) dispatchVkAction("left");
-          if ((gp.buttons[15]?.pressed ?? false) && !prev.current[15]) dispatchVkAction("right");
+          if ((gp.buttons[BTN_DPAD_UP]?.pressed ?? false) && !prev.current[BTN_DPAD_UP]) dispatchVkAction("up");
+          if ((gp.buttons[BTN_DPAD_DOWN]?.pressed ?? false) && !prev.current[BTN_DPAD_DOWN]) dispatchVkAction("down");
+          if ((gp.buttons[BTN_DPAD_LEFT]?.pressed ?? false) && !prev.current[BTN_DPAD_LEFT]) dispatchVkAction("left");
+          if ((gp.buttons[BTN_DPAD_RIGHT]?.pressed ?? false) && !prev.current[BTN_DPAD_RIGHT]) dispatchVkAction("right");
           // A — if pointer visible, click element under pointer (e.g. VK key); else D-pad select
-          if ((gp.buttons[1]?.pressed ?? false) && !prev.current[1]) {
+          if ((gp.buttons[BTN_A]?.pressed ?? false) && !prev.current[BTN_A]) {
             if (pointerPos.current.visible) {
               const target = resolveInteractiveAt(pointerPos.current.x, pointerPos.current.y);
               if (target) target.click(); else dispatchVkAction("a");
             } else { dispatchVkAction("a"); }
           }
-          if ((gp.buttons[0]?.pressed ?? false) && !prev.current[0]) dispatchVkAction("b");
-          if ((gp.buttons[2]?.pressed ?? false) && !prev.current[2]) dispatchVkAction("y");
-          if ((gp.buttons[9]?.pressed ?? false) && !prev.current[9]) dispatchVkAction("start");
+          if ((gp.buttons[BTN_B]?.pressed ?? false) && !prev.current[BTN_B]) dispatchVkAction("b");
+          if ((gp.buttons[BTN_Y]?.pressed ?? false) && !prev.current[BTN_Y]) dispatchVkAction("y");
+          if ((gp.buttons[BTN_START]?.pressed ?? false) && !prev.current[BTN_START]) dispatchVkAction("start");
 
           // Left stick pointer — keep cursor moving even with VK open
-          const vlx = gp.axes[0] ?? 0;
-          const vly = gp.axes[1] ?? 0;
+          const vlx = gp.axes[AXIS_LX] ?? 0;
+          const vly = gp.axes[AXIS_LY] ?? 0;
           if (Math.sqrt(vlx * vlx + vly * vly) > DEADZONE) {
             pointerPos.current.x = Math.max(16, Math.min(window.innerWidth - 16, pointerPos.current.x + vlx * POINTER_SPEED));
             pointerPos.current.y = Math.max(16, Math.min(window.innerHeight - 16, pointerPos.current.y + vly * POINTER_SPEED));
@@ -254,32 +264,32 @@ export function useGamepadPoll() {
           return;
         }
 
-        // ── L1 (button 4) → cycle header left ──
-        if ((gp.buttons[4]?.pressed ?? false) && !prev.current[4] && !modal) {
+        // ── L1 → cycle header left ──
+        if ((gp.buttons[BTN_L1]?.pressed ?? false) && !prev.current[BTN_L1] && !modal) {
           cycleHeader(-1, hidePointer);
         }
 
-        // ── R1 (button 5) → cycle header right ──
-        if ((gp.buttons[5]?.pressed ?? false) && !prev.current[5] && !modal) {
+        // ── R1 → cycle header right ──
+        if ((gp.buttons[BTN_R1]?.pressed ?? false) && !prev.current[BTN_R1] && !modal) {
           cycleHeader(1, hidePointer);
         }
 
         // ── D-pad → spatial content navigation (L1/R1 handle header cycling) ──
-        if ((gp.buttons[12]?.pressed ?? false) && !prev.current[12]) {
+        if ((gp.buttons[BTN_DPAD_UP]?.pressed ?? false) && !prev.current[BTN_DPAD_UP]) {
           spatialNav("up", hidePointer);
         }
-        if ((gp.buttons[13]?.pressed ?? false) && !prev.current[13]) {
+        if ((gp.buttons[BTN_DPAD_DOWN]?.pressed ?? false) && !prev.current[BTN_DPAD_DOWN]) {
           spatialNav("down", hidePointer);
         }
-        if ((gp.buttons[14]?.pressed ?? false) && !prev.current[14]) {
+        if ((gp.buttons[BTN_DPAD_LEFT]?.pressed ?? false) && !prev.current[BTN_DPAD_LEFT]) {
           spatialNav("left", hidePointer);
         }
-        if ((gp.buttons[15]?.pressed ?? false) && !prev.current[15]) {
+        if ((gp.buttons[BTN_DPAD_RIGHT]?.pressed ?? false) && !prev.current[BTN_DPAD_RIGHT]) {
           spatialNav("right", hidePointer);
         }
 
-        // ── A (button 1 — PSG1 right face) → click focused element or open VK for text inputs ──
-        if ((gp.buttons[1]?.pressed ?? false) && !prev.current[1]) {
+        // ── A (right face) → click focused element or open VK for text inputs ──
+        if ((gp.buttons[BTN_A]?.pressed ?? false) && !prev.current[BTN_A]) {
           const focused = getGpFocused();
           if (focused && document.contains(focused)) {
             const tag = focused.tagName;
@@ -305,42 +315,42 @@ export function useGamepadPoll() {
           }
         }
 
-        // ── B (button 0 — PSG1 bottom face) → cancel / back / close modal ──
-        if ((gp.buttons[0]?.pressed ?? false) && !prev.current[0]) {
+        // ── B (bottom face) → cancel / back / close modal ──
+        if ((gp.buttons[BTN_B]?.pressed ?? false) && !prev.current[BTN_B]) {
           const cancel = findCancelButton();
           if (cancel) cancel.click();
           else if (modalSafe) closeModal();
           else if (!modal) gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: "back" }));
         }
 
-        // ── Y (button 2 — PSG1 left face) → close modal if open, then dispatch "refresh" ──
-        if ((gp.buttons[2]?.pressed ?? false) && !prev.current[2]) {
+        // ── Y (left face) → close modal if open, then dispatch "refresh" ──
+        if ((gp.buttons[BTN_Y]?.pressed ?? false) && !prev.current[BTN_Y]) {
           if (modalSafe) closeModal();
           if (!modal) gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: "refresh" }));
         }
 
-        // ── X (button 3 — PSG1 top face) → reserved ──
+        // ── X (top face) → reserved ──
 
 
 
-        // ── Select (button 8) → wallet connect/disconnect ──
-        if ((gp.buttons[8]?.pressed ?? false) && !prev.current[8]) {
+        // ── Select → wallet connect/disconnect ──
+        if ((gp.buttons[BTN_SELECT]?.pressed ?? false) && !prev.current[BTN_SELECT]) {
           gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: "select" }));
         }
 
-        // ── Start (button 9) → navigate to terms / mode-select gate ──
-        if ((gp.buttons[9]?.pressed ?? false) && !prev.current[9]) {
+        // ── Start → navigate to terms / mode-select gate ──
+        if ((gp.buttons[BTN_START]?.pressed ?? false) && !prev.current[BTN_START]) {
           gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: "start" }));
         }
 
-        // ── L3 (button 10) → dispatch "l3" ──
-        if ((gp.buttons[10]?.pressed ?? false) && !prev.current[10]) {
+        // ── L3 → dispatch "l3" ──
+        if ((gp.buttons[BTN_L3]?.pressed ?? false) && !prev.current[BTN_L3]) {
           gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: "l3" }));
         }
 
-        // ── R3 (button 11) → same as A (click focused/hovered). Wallet signing
+        // ── R3 → same as A (click focused/hovered). Wallet signing
         //    confirm lives in the extension popup, outside our DOM — A-only there. ──
-        if ((gp.buttons[11]?.pressed ?? false) && !prev.current[11]) {
+        if ((gp.buttons[BTN_R3]?.pressed ?? false) && !prev.current[BTN_R3]) {
           const focused = getGpFocused();
           if (focused && document.contains(focused)) {
             if (isTextEditable(focused)) {
@@ -360,8 +370,8 @@ export function useGamepadPoll() {
           }
         }
 
-        // ── Home (button 16) → dispatch "home" ──
-        if ((gp.buttons[16]?.pressed ?? false) && !prev.current[16]) {
+        // ── Home (NOT accessible on real PSG1 — firmware only) ──
+        if ((gp.buttons[BTN_HOME]?.pressed ?? false) && !prev.current[BTN_HOME]) {
           gamepadBus?.dispatchEvent(new CustomEvent("gamepad-action", { detail: "home" }));
         }
 
@@ -370,9 +380,9 @@ export function useGamepadPoll() {
         if (prev.current.length !== btns.length) prev.current = new Array(btns.length);
         for (let i = 0; i < btns.length; i++) prev.current[i] = btns[i].pressed;
 
-        // ── Left stick → virtual pointer (clears D-pad focus) ──
-        const lx = gp.axes[0] ?? 0;
-        const ly = gp.axes[1] ?? 0;
+        // ── Left stick (360° analog) → virtual pointer (clears D-pad focus) ──
+        const lx = gp.axes[AXIS_LX] ?? 0;
+        const ly = gp.axes[AXIS_LY] ?? 0;
         const leftMag = Math.sqrt(lx * lx + ly * ly);
 
         if (leftMag > DEADZONE) {
@@ -409,9 +419,9 @@ export function useGamepadPoll() {
           }, 10000);
         }
 
-        // ── Right stick: up/down continuous scroll, left/right spatial nav ──
-        const rx = gp.axes[2] ?? 0;
-        const ry = gp.axes[3] ?? 0;
+        // ── Right stick (360° analog): up/down continuous scroll, left/right spatial nav ──
+        const rx = gp.axes[AXIS_RX] ?? 0;
+        const ry = gp.axes[AXIS_RY] ?? 0;
 
         // Continuous scroll while held — speed scales with deflection
         if (Math.abs(ry) > DEADZONE) {

@@ -1,5 +1,11 @@
 # PSG1 Hardware — Controller Map
 
+> **Canonical source of truth:** [`packages/core/src/lib/psg1-hardware.ts`](../packages/core/src/lib/psg1-hardware.ts)
+>
+> All button indices, labels, categories, default actions, and device specs
+> in this document are derived from that file. If this document and the
+> TypeScript file ever disagree, **the TypeScript file wins**.
+
 > **PSG1** is a handheld gaming console made by **Play Solana** (playsolana.com) —
 > the first gaming console on Solana. It is NOT a PC peripheral or phone accessory.
 > Games are built with the **PlaySolana-Unity.SDK** and published via **PlayGate**.

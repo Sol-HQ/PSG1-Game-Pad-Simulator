@@ -20,6 +20,13 @@ import {
   dispatchVkAction,
 } from "./VirtualKeyboard";
 import { getActivePsg1Mapping } from "../lib/psg1-mapper";
+import {
+  PSG1_BUTTONS,
+  PSG1_STICKS,
+  PADSIM_DEFAULTS,
+  PSG1_DEVICE,
+  type Psg1ButtonDef,
+} from "../lib/psg1-hardware";
 
 /** Pixels per press for left-stick simulator buttons. */
 const CURSOR_STEP = 30;
@@ -231,22 +238,27 @@ const KEY_MAP: Record<string, string> = {
 
 type SettingsPanel = "log" | "map" | "guide";
 
-const BTN_REF: [string, string, string][] = [
-  ["A",         "Confirm / Click",  "Enter"],
-  ["B",         "Back / Cancel",    "Bksp"],
-  ["X",         "Reserved",         "X"],
-  ["Y",         "Refresh",          "Y"],
-  ["L1",        "<- Cycle tabs",     "["],
-  ["R1",        "-> Cycle tabs",     "]"],
-  ["D-Pad",     "Navigate",         "Arrows"],
-  ["L-Stick",   "Move pointer",     "-"],
-  ["R-Stick U/D", "Scroll",           "-"],
-  ["R-Stick L/R", "Navigate",         "-"],
-  ["Select",    "Wallet",           "Tab"],
-  ["Start",     "Gate / Menu",      "Space"],
-  ["Home",      "App menu",         "H"],
-  ["L3",        "Reserved",         "Q"],
-  ["R3",        "Click cursor",     "E"],
+/**
+ * Button Map table — generated from PSG1 hardware spec.
+ * [label, PADSIM default action, keyboard shortcut, category]
+ */
+const BTN_REF: [string, string, string, string][] = [
+  // From PSG1_BUTTONS (present buttons only, skip absent L2/R2)
+  ...PSG1_BUTTONS
+    .filter((b: Psg1ButtonDef) => b.category !== "absent")
+    .map((b: Psg1ButtonDef): [string, string, string, string] => [
+      b.label,
+      PADSIM_DEFAULTS[b.id] ?? b.deviceAction,
+      b.simKey || "-",
+      b.category === "system" ? "SYS" : "GAME",
+    ]),
+  // Stick entries (not in PSG1_BUTTONS)
+  ...PSG1_STICKS.map((s): [string, string, string, string] => [
+    s.label,
+    PADSIM_DEFAULTS[s.id] ?? s.deviceAction,
+    "-",
+    "GAME",
+  ]),
 ];
 
 const GUIDE_STEPS: [string, string, string][] = [
@@ -315,33 +327,31 @@ export default function GamepadDebugBridge() {
     return "";
   }, []);
 
-  // Button ID → human-readable label
+  // Button ID → human-readable label (derived from PSG1 hardware spec)
   const btnLabel = (id: string): string => {
-    const map: Record<string, string> = {
-      a: "A", b: "B", x: "X", y: "Y",
-      l1: "L1", r1: "R1", l3: "L3", r3: "R3",
-      up: "D-Up", down: "D-Down", left: "D-Left", right: "D-Right",
-      select: "Select", start: "Start", home: "Home",
+    // Check hardware buttons first
+    const hw = PSG1_BUTTONS.find((b: Psg1ButtonDef) => b.id === id);
+    if (hw) return hw.label;
+    // Simulator-only stick direction IDs
+    const stickLabels: Record<string, string> = {
       "lstick-up": "L↑", "lstick-down": "L↓", "lstick-left": "L←", "lstick-right": "L→",
       "rstick-up": "R↑", "rstick-down": "R↓", "rstick-left": "R←", "rstick-right": "R→",
     };
-    return map[id] ?? id.toUpperCase();
+    return stickLabels[id] ?? id.toUpperCase();
   };
 
-  // Button ID → action name
+  // Button ID → action name (derived from PSG1 hardware spec)
   const btnAction = (id: string): string => {
-    const map: Record<string, string> = {
-      a: "Confirm", b: "Back/Cancel", x: "Reserved", y: "Refresh",
-      l1: "Cycle Tab ←", r1: "Cycle Tab →",
-      up: "Nav ↑", down: "Nav ↓", left: "Nav ←", right: "Nav →",
-      select: "Wallet", start: "Gate/Menu", home: "Menu",
-      l3: "L3", r3: "Click Cursor",
+    const hw = PSG1_BUTTONS.find((b: Psg1ButtonDef) => b.id === id);
+    if (hw) return hw.simLabel;
+    // Simulator-only stick direction IDs
+    const stickActions: Record<string, string> = {
       "lstick-up": "Pointer ↑", "lstick-down": "Pointer ↓",
       "lstick-left": "Pointer ←", "lstick-right": "Pointer →",
       "rstick-up": "Scroll ↑", "rstick-down": "Scroll ↓",
       "rstick-left": "Nav ←", "rstick-right": "Nav →",
     };
-    return map[id] ?? id;
+    return stickActions[id] ?? id;
   };
 
   const pushLog = useCallback((entry: string) => {
@@ -536,20 +546,25 @@ export default function GamepadDebugBridge() {
             {/* -- Button Map tab -- */}
             {activePanel === "map" && (
               <div className="gp-sim__ref">
+                <div className="gp-sim__ref-device">
+                  {PSG1_DEVICE.name} &mdash; {PSG1_DEVICE.screen.width}&times;{PSG1_DEVICE.screen.height} &mdash; {PSG1_DEVICE.manufacturer}
+                </div>
                 <table className="gp-sim__ref-table">
                   <thead>
                     <tr>
                       <th>Button</th>
-                      <th>Default action</th>
+                      <th>PADSIM Default</th>
                       <th>Key</th>
+                      <th>Type</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {BTN_REF.map(([b, action, key]) => (
-                      <tr key={b}>
+                    {BTN_REF.map(([b, action, key, cat]) => (
+                      <tr key={b} className={cat === "SYS" ? "gp-sim__ref-sys" : ""}>
                         <td><code className="gp-sim__ref-btn">{b}</code></td>
                         <td className="gp-sim__ref-action">{action}</td>
                         <td><kbd className="gp-sim__ref-kbd">{key}</kbd></td>
+                        <td className="gp-sim__ref-cat">{cat}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -736,9 +751,9 @@ export default function GamepadDebugBridge() {
               </div>
             </div>
 
-            {/* Zone legend */}
+            {/* Zone legend — derived from hardware spec */}
             <div className="gp-sim__mode">
-              PSG1 | L1/R1 Shoulders | D-Pad Nav | Face A/B/X/Y | L3/R3 Push
+              {PSG1_DEVICE.name} | L/R Shoulders | D-Pad | A/B/X/Y | L3/R3 | No L2/R2
             </div>
           </div>
         )}

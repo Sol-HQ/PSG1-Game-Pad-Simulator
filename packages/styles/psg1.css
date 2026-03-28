@@ -256,6 +256,15 @@
 
 /* ── Button Map tab ── */
 .gp-sim__ref { display: flex; flex-direction: column; gap: 12px; }
+.gp-sim__ref-device {
+  font-size: 8px;
+  font-weight: 800;
+  color: rgba(212,175,55,0.5);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 4px 0 2px;
+}
 .gp-sim__ref-table { width: 100%; border-collapse: collapse; font-size: 10px; }
 .gp-sim__ref-table th {
   text-align: left;
@@ -292,6 +301,19 @@
   font-size: 9px;
   font-family: monospace;
   color: rgba(200,200,220,0.45);
+}
+.gp-sim__ref-cat {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(100,200,140,0.6);
+}
+.gp-sim__ref-sys td { opacity: 0.65; }
+.gp-sim__ref-sys .gp-sim__ref-cat { color: rgba(212,175,55,0.7); }
+.gp-sim__ref-sys .gp-sim__ref-btn {
+  background: rgba(212,175,55,0.18);
+  border-color: rgba(212,175,55,0.35);
 }
 .gp-sim__ref-mapping {
   margin-top: 8px;

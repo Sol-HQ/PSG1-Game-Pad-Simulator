@@ -1,5 +1,9 @@
 # PSG1 — Integration Guide for Solana Game Devs
 
+> **Canonical hardware spec:** [`packages/core/src/lib/psg1-hardware.ts`](../packages/core/src/lib/psg1-hardware.ts)
+> All button definitions, indices, categories, and device specs are defined there.
+> Import constants (`BTN_A`, `PSG1_BUTTONS`, etc.) from `@psg1/core` in your code.
+
 > **The scenario this guide is written for:**
 > You have a working web game (React, Next.js, Phaser, Unity WebGL, whatever).
 > You want it to run on the PSG1 handheld with full button support.

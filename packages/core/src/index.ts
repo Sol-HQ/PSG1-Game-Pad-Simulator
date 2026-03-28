@@ -68,6 +68,40 @@ export {
   dispatchVkAction,
 } from "./components/VirtualKeyboard";
 
+// ── PSG1 Hardware Specification (immutable, single source of truth) ──
+export {
+  // Button index constants (Gamepad API)
+  BTN_A, BTN_B, BTN_X, BTN_Y,
+  BTN_L1, BTN_R1, BTN_L2, BTN_R2,
+  BTN_SELECT, BTN_START,
+  BTN_L3, BTN_R3,
+  BTN_DPAD_UP, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT,
+  BTN_HOME,
+  // Axis constants
+  AXIS_LX, AXIS_LY, AXIS_RX, AXIS_RY,
+  STICK_DEADZONE,
+  // Canonical definitions (frozen arrays)
+  PSG1_BUTTONS,
+  PSG1_STICKS,
+  PSG1_SYSTEM_CONTEXTS,
+  PSG1_INACCESSIBLE,
+  PSG1_DEVICE,
+  PADSIM_DEFAULTS,
+  // Helpers
+  getButtonById,
+  getButtonByIndex,
+  getGameButtons,
+  getSystemButtons,
+  getAbsentButtons,
+  getPresentButtons,
+  // Types
+  type ButtonCategory,
+  type PhysicalPosition,
+  type Psg1ButtonDef,
+  type Psg1StickDef,
+  type SystemButtonContext,
+} from "./lib/psg1-hardware";
+
 // ── Components ───────────────────────────────────────────────────
 // Default exports re-exported as named exports for barrel access.
 // For dynamic imports (code splitting), use sub-path imports:
