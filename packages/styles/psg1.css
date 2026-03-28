@@ -119,6 +119,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
+  max-height: calc(100dvh - 24px);
   font-family: system-ui, sans-serif;
   -webkit-user-select: none;
   user-select: none;
@@ -130,7 +131,8 @@
 
 .gp-sim__panel {
   width: 340px;
-  max-height: min(420px, calc(100dvh - 400px));
+  min-height: 0;
+  flex: 1 1 0;
   background: rgba(12,12,18,0.97);
   border: 1.5px solid rgba(212,175,55,0.4);
   border-radius: 16px;
@@ -452,6 +454,33 @@
   background: rgba(212,175,55,0.12);
   border-color: rgba(212,175,55,0.5);
   color: #e8c547;
+}
+
+/* ── Panel footer — always visible close bar at bottom ─────── */
+.gp-sim__panel-footer {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-top: 1px solid rgba(212,175,55,0.15);
+  background: rgba(12,12,18,0.98);
+  text-align: center;
+}
+.gp-sim__panel-footer-close {
+  width: 100%;
+  padding: 6px 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e8c547;
+  background: rgba(212,175,55,0.06);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.gp-sim__panel-footer-close:hover {
+  background: rgba(212,175,55,0.15);
+  border-color: rgba(212,175,55,0.6);
 }
 
 /* ── Controller wrapper (position: relative for toggle) ──── */
@@ -1053,7 +1082,7 @@
 
 /* ── Responsive: small screens ───────────────────────────────── */
 @media (max-width: 420px) {
-  .gp-sim__panel { width: 290px; max-height: min(340px, calc(100dvh - 360px)); }
+  .gp-sim__panel { width: 290px; }
   .gp-sim__settings-btn { width: 290px; }
   .gp-sim__body { width: 290px; padding: 12px 14px 10px; }
   .gp-sim__panel-tab { font-size: 8px; padding: 6px 4px; }

@@ -633,6 +633,16 @@ export default function GamepadDebugBridge() {
             )}
 
           </div>
+
+          {/* Always-visible close footer — can't scroll off-screen */}
+          <div className="gp-sim__panel-footer">
+            <button
+              className="gp-sim__panel-footer-close"
+              onClick={() => setSettingsOpen(false)}
+            >
+              Close Panel &ensp; (B)
+            </button>
+          </div>
         </div>
       )}
 
