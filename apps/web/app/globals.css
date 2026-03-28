@@ -135,3 +135,44 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:sys
 }
 .psg1-placeholder__hint--game{margin-top:12px}
 .psg1-placeholder__link{color:rgba(212,175,55,0.7);text-decoration:underline}
+
+/* ━━━━━ SANDBOX LAYOUT ADDITIONS (/game) ━━━━━━━━━━━━━━━━━━━━━━ */
+.demo-root{grid-template-rows:auto 1fr auto}
+
+/* ── Sandbox menu ── */
+.sandbox-menu{display:flex;flex-direction:column;align-items:center;gap:12px;padding:32px 0}
+.sandbox-menu h2{font-size:28px;font-weight:900;color:var(--accent);letter-spacing:0.06em}
+
+/* ── Game header (scores bar) ── */
+.sandbox-game-header{display:flex;flex-direction:column;align-items:center;gap:8px}
+.sandbox-scores{display:flex;gap:20px;font-size:14px;font-weight:700}
+.sandbox-score--x{color:#e06c75}
+.sandbox-score--o{color:#61afef}
+.sandbox-score--draw{color:var(--muted)}
+
+/* ── Leaderboard extras ── */
+.sandbox-streak{font-size:12px;color:var(--accent);font-weight:600;min-width:64px;text-align:right}
+
+/* ── Profile stats ── */
+.sandbox-stats{margin-top:20px}
+.sandbox-stats h3{font-size:15px;font-weight:700;margin-bottom:10px}
+
+/* ── Settings toggles ── */
+.sandbox-settings-list{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.sandbox-toggle{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);cursor:pointer;transition:background .15s}
+.sandbox-toggle:hover{background:var(--bg-hover)}
+.sandbox-toggle input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.sandbox-toggle__label{font-size:14px;font-weight:600;flex:1}
+.sandbox-toggle__hint{font-size:11px;color:var(--muted);max-width:200px;text-align:right}
+
+/* ── Danger zone ── */
+.sandbox-danger{margin-top:24px;padding-top:16px;border-top:1px solid rgba(229,57,53,0.2)}
+.sandbox-danger h3{font-size:14px;font-weight:700;color:#e53935;margin-bottom:10px}
+.sandbox-btn--danger{border-color:rgba(229,57,53,0.3);color:#e53935}
+.sandbox-btn--danger:hover{background:rgba(229,57,53,0.1);border-color:#e53935}
+
+/* ── Footer ── */
+.sandbox-footer{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.sandbox-footer__sep{opacity:.3}
+.sandbox-footer__link{color:var(--accent);text-decoration:none;font-weight:600}
+.sandbox-footer__link:hover{text-decoration:underline}

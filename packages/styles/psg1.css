@@ -129,8 +129,8 @@
 /* ── Settings panel ──────────────────────────────────────────── */
 
 .gp-sim__panel {
-  width: 320px;
-  max-height: 380px;
+  width: 340px;
+  max-height: min(420px, calc(100dvh - 400px));
   background: rgba(12,12,18,0.97);
   border: 1.5px solid rgba(212,175,55,0.4);
   border-radius: 16px;
@@ -178,27 +178,31 @@
 
 .gp-sim__panel-tabs {
   display: flex;
-  padding: 0 14px;
+  padding: 0 10px;
   border-bottom: 1px solid rgba(212,175,55,0.1);
   flex-shrink: 0;
+  gap: 2px;
 }
 
 .gp-sim__panel-tab {
-  padding: 7px 10px;
+  flex: 1;
+  padding: 7px 6px;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-align: center;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   color: rgba(212,175,55,0.4);
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
   margin-bottom: -1px;
+  border-radius: 6px 6px 0 0;
 }
 .gp-sim__panel-tab--active,
-.gp-sim__panel-tab:hover { color: #e8c547; border-bottom-color: #d4af37; }
+.gp-sim__panel-tab:hover { color: #e8c547; border-bottom-color: #d4af37; background: rgba(212,175,55,0.05); }
 
 .gp-sim__panel-body {
   flex: 1;
@@ -331,26 +335,27 @@
 
 .gp-sim__settings-btn {
   width: 320px;
-  height: 28px;
-  background: rgba(12,12,18,0.92);
-  border: 1px solid rgba(212,175,55,0.25);
-  border-radius: 8px;
-  color: rgba(212,175,55,0.55);
+  height: 30px;
+  background: rgba(12,12,18,0.94);
+  border: 1.5px solid rgba(212,175,55,0.3);
+  border-radius: 10px;
+  color: rgba(212,175,55,0.6);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
 }
 .gp-sim__settings-btn:hover,
 .gp-sim__settings-btn--open {
-  background: rgba(212,175,55,0.08);
-  border-color: rgba(212,175,55,0.5);
+  background: rgba(212,175,55,0.1);
+  border-color: rgba(212,175,55,0.55);
   color: #e8c547;
+  box-shadow: 0 0 10px rgba(212,175,55,0.12);
 }
 
 /* ── Controller wrapper (position: relative for toggle) ──── */
@@ -948,4 +953,12 @@
   color: #39ff14;
   font-size: 13px;
   font-family: monospace;
+}
+
+/* ── Responsive: small screens ───────────────────────────────── */
+@media (max-width: 420px) {
+  .gp-sim__panel { width: 290px; max-height: min(340px, calc(100dvh - 360px)); }
+  .gp-sim__settings-btn { width: 290px; }
+  .gp-sim__body { width: 290px; padding: 12px 14px 10px; }
+  .gp-sim__panel-tab { font-size: 8px; padding: 6px 4px; }
 }

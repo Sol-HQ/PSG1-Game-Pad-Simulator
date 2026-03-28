@@ -202,6 +202,57 @@ pnpm dev
 
 ---
 
+## Testing the Simulator
+
+### Game Sandbox (`/game?gp`)
+
+The demo app includes a full application-layout sandbox at `/game`. This simulates a **real gaming app** with multiple interactive zones, letting you validate every PSG1 control in context:
+
+| Area | What it tests |
+|------|--------------|
+| **Header tabs** (Game, Leaderboard, Profile, Settings) | L1/R1 `.gp-cycleable` cycling |
+| **Tic-Tac-Toe board** | D-pad grid navigation, A to place marks, B to undo |
+| **Leaderboard** | D-pad row navigation, A to select a player |
+| **Profile form** | A on text input opens Virtual Keyboard, D-pad to type, Y to confirm |
+| **Settings toggles** | D-pad + A to toggle checkboxes |
+| **Wallet button** | Select button dispatches `"select"` action |
+| **Action log** (sidebar) | Live stream of every action — verify events fire correctly |
+| **Footer / links** | Moju pointer + R3 click |
+
+### How to run
+
+```bash
+# From repo root:
+pnpm install
+pnpm dev           # starts demo at http://localhost:3000
+
+# Open the sandbox:
+# http://localhost:3000/game?gp
+```
+
+### Test checklist
+
+1. **D-pad navigation** — arrows move the green neon focus ring between cells, buttons, tabs, and form fields
+2. **L1/R1 header** — `[` and `]` (or shoulder buttons) cycle through the gold-highlighted header tabs
+3. **A confirm** — `Enter` places a mark, toggles a checkbox, or opens the Virtual Keyboard on text inputs
+4. **B cancel** — `Backspace` undoes a move during the game, closes modals
+5. **Y refresh** — `Y` starts a new round after game over
+6. **Left stick / moju pointer** — move cursor, hover highlight (cyan glow), A/R3 clicks at cursor position
+7. **Right stick** — up/down scrolls content, left/right spatial nav
+8. **Select** — `Tab` fires the wallet connect stub
+9. **Virtual Keyboard** — press A on the Profile name/bio fields, full OSK overlay with D-pad navigation
+
+### Standalone example
+
+A separate Tic-Tac-Toe example lives in `examples/tic-tac-toe/`. It demonstrates minimal `@psg1/core` integration without the full sandbox:
+
+```bash
+pnpm --filter @psg1/example-tic-tac-toe dev
+# → http://localhost:3001?gp
+```
+
+---
+
 ## Repo Structure
 
 ```
@@ -222,14 +273,15 @@ PSG1-Game-Pad-Simulator/
     styles/
       psg1.css           ← all PSG1 CSS
   apps/
-    web/                 ← Next.js demo testbed
-      src/components/
-        DemoShell.tsx     ← demo UI (imports from @psg1/core)
+    web/                 ← Next.js demo testbed (Vercel deployment)
+      app/
+        page.tsx          ← landing page
+        game/page.tsx     ← full game sandbox with tabs + TTT
       public/
         art/              ← moju cursor sprites
         brand/            ← I.O. watermark
   examples/
-    tic-tac-toe/         ← full example game using @psg1/core
+    tic-tac-toe/         ← standalone example game using @psg1/core
   docs/
     LAYMANS_MANUAL.md    ← step-by-step integration manual (start here)
     INTEGRATE.md         ← technical integration reference
