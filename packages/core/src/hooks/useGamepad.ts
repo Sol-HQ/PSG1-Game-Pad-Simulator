@@ -219,7 +219,13 @@ export function useGamepadPoll() {
           if ((gp.buttons[13]?.pressed ?? false) && !prev.current[13]) dispatchVkAction("down");
           if ((gp.buttons[14]?.pressed ?? false) && !prev.current[14]) dispatchVkAction("left");
           if ((gp.buttons[15]?.pressed ?? false) && !prev.current[15]) dispatchVkAction("right");
-          if ((gp.buttons[1]?.pressed ?? false) && !prev.current[1]) dispatchVkAction("a");
+          // A — if pointer visible, click element under pointer (e.g. VK key); else D-pad select
+          if ((gp.buttons[1]?.pressed ?? false) && !prev.current[1]) {
+            if (pointerPos.current.visible) {
+              const target = resolveInteractiveAt(pointerPos.current.x, pointerPos.current.y);
+              if (target) target.click(); else dispatchVkAction("a");
+            } else { dispatchVkAction("a"); }
+          }
           if ((gp.buttons[0]?.pressed ?? false) && !prev.current[0]) dispatchVkAction("b");
           if ((gp.buttons[2]?.pressed ?? false) && !prev.current[2]) dispatchVkAction("y");
           if ((gp.buttons[9]?.pressed ?? false) && !prev.current[9]) dispatchVkAction("start");

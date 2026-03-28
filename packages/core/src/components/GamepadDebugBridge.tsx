@@ -81,6 +81,16 @@ function pressButton(id: string) {
   }
 
   if (isVirtualKeyboardOpen()) {
+    // When pointer is visible and A/R3 is pressed, click the element under
+    // the pointer (e.g. a VK key button) instead of the D-pad cursor position.
+    if (id === "a" || id === "r3") {
+      const cursor = document.querySelector<HTMLElement>(".gamepad-cursor");
+      if (cursor && cursor.style.opacity !== "0") {
+        const rect = cursor.getBoundingClientRect();
+        const target = resolveInteractiveAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        if (target) { target.click(); return; }
+      }
+    }
     dispatchVkAction(id);
     return;
   }
@@ -270,6 +280,8 @@ export default function GamepadDebugBridge() {
   const [actionLog, setActionLog] = useState<string[]>([]);
   const [flash, setFlash] = useState<string | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout>>();
+  const holdInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const holdDelay = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
   // -- Describe the current target for richer logs -----------------------
@@ -414,6 +426,14 @@ export default function GamepadDebugBridge() {
     return () => document.removeEventListener("keydown", onKey);
   }, [handlePress]);
 
+  // Cleanup hold interval on unmount
+  useEffect(() => {
+    return () => {
+      if (holdDelay.current) clearTimeout(holdDelay.current);
+      if (holdInterval.current) clearInterval(holdInterval.current);
+    };
+  }, []);
+
   const btn = (id: string, label: string, sub?: string) => (
     <button
       className={`gp-sim__btn gp-sim__btn--${id}${flash === id ? " gp-sim__btn--flash" : ""}`}
@@ -427,6 +447,41 @@ export default function GamepadDebugBridge() {
       {sub && <span className="gp-sim__sub">{sub}</span>}
     </button>
   );
+
+  /** L-stick / R-stick button with hold-to-repeat (continuous movement). */
+  const HOLD_DELAY = 200;   // ms before repeat starts
+  const HOLD_RATE  = 40;    // ms between repeats (~25 fps)
+  const stickBtn = (id: string, label: string, sub?: string) => {
+    const startHold = (e: React.PointerEvent) => {
+      e.stopPropagation();
+      handlePress(id);                                         // fire once immediately
+      if (holdDelay.current) { clearTimeout(holdDelay.current); holdDelay.current = null; }
+      if (holdInterval.current) { clearInterval(holdInterval.current); holdInterval.current = null; }
+      holdDelay.current = setTimeout(() => {
+        holdDelay.current = null;
+        holdInterval.current = setInterval(() => pressButton(id), HOLD_RATE);
+      }, HOLD_DELAY);
+    };
+    const stopHold = () => {
+      if (holdDelay.current) { clearTimeout(holdDelay.current); holdDelay.current = null; }
+      if (holdInterval.current) { clearInterval(holdInterval.current); holdInterval.current = null; }
+    };
+    return (
+      <button
+        className={`gp-sim__btn gp-sim__btn--${id}${flash === id ? " gp-sim__btn--flash" : ""}`}
+        onPointerDown={startHold}
+        onPointerUp={stopHold}
+        onPointerLeave={stopHold}
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        aria-label={label}
+      >
+        <span className="gp-sim__label">{label}</span>
+        {sub && <span className="gp-sim__sub">{sub}</span>}
+      </button>
+    );
+  };
 
   // Read active mapping snapshot only when the map tab is open
   const mapping = settingsOpen && activePanel === "map" ? getActivePsg1Mapping() : null;
@@ -656,13 +711,13 @@ export default function GamepadDebugBridge() {
                 <div className="gp-sim__section-label">L-STICK</div>
                 <div className="gp-sim__stick-sublabel">Pointer (moju)</div>
                 <div className="gp-sim__dpad gp-sim__dpad--stick">
-                  {btn("lstick-up", "Up", "Move")}
+                  {stickBtn("lstick-up", "Up", "Move")}
                   <div className="gp-sim__dpad-row">
-                    {btn("lstick-left", "Lt", "Move")}
+                    {stickBtn("lstick-left", "Lt", "Move")}
                     {btn("l3", "L3", "Push")}
-                    {btn("lstick-right", "Rt", "Move")}
+                    {stickBtn("lstick-right", "Rt", "Move")}
                   </div>
-                  {btn("lstick-down", "Dn", "Move")}
+                  {stickBtn("lstick-down", "Dn", "Move")}
                 </div>
               </div>
 
@@ -670,13 +725,13 @@ export default function GamepadDebugBridge() {
                 <div className="gp-sim__section-label">R-STICK</div>
                 <div className="gp-sim__stick-sublabel">Scroll / Nav</div>
                 <div className="gp-sim__dpad gp-sim__dpad--stick">
-                  {btn("rstick-up", "Up", "Scroll")}
+                  {stickBtn("rstick-up", "Up", "Scroll")}
                   <div className="gp-sim__dpad-row">
-                    {btn("rstick-left", "Lt", "Nav")}
+                    {stickBtn("rstick-left", "Lt", "Nav")}
                     {btn("r3", "R3", "Click")}
-                    {btn("rstick-right", "Rt", "Nav")}
+                    {stickBtn("rstick-right", "Rt", "Nav")}
                   </div>
-                  {btn("rstick-down", "Dn", "Scroll")}
+                  {stickBtn("rstick-down", "Dn", "Scroll")}
                 </div>
               </div>
             </div>
