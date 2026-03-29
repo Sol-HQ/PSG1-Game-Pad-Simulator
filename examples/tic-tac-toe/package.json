@@ -1,6 +1,7 @@
 {
   "name": "@psg1/example-tic-tac-toe",
   "version": "0.1.0",
+  "description": "Tic-Tac-Toe example — demonstrates full PSG1 gamepad integration",
   "private": true,
   "scripts": {
     "dev": "next dev --port 3001",
