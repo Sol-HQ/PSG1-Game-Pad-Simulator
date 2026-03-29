@@ -1,3 +1,4 @@
+# PADSIM PSG1 monorepo — apps, packages, examples
 packages:
   - "apps/*"
   - "packages/*"
