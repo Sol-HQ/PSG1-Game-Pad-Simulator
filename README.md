@@ -1,6 +1,6 @@
 # PSG1 GamePad Simulator
 
-> Browser-based PSG1 (PlaySolana Gamepad 1) emulator for Solana game developers.  
+> Browser-based PSG1 (PlaySolana Gamepad 1) emulator for Solana game developers.
 > Test and wire up full gamepad navigation **before** waiting for hardware approval — straight from any browser, on any device.
 
 ---
