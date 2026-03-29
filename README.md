@@ -294,6 +294,41 @@ PSG1-Game-Pad-Simulator/
 
 ---
 
+## Security & Verifiability
+
+**Full audit report: [SECURITY.md](SECURITY.md)**
+
+This library is **zero-trust by design**:
+
+- **No backend** — pure client-side. No server, no database, no API routes
+- **No secrets** — zero hardcoded keys, tokens, or credentials anywhere
+- **No analytics** — zero telemetry, zero tracking, zero third-party scripts
+- **No storage** — no localStorage, no cookies, no sessionStorage
+- **No eval** — no `eval()`, `innerHTML`, `dangerouslySetInnerHTML`, or `document.write`
+- **No network** — the only `fetch()` is an optional developer-invoked mapping loader
+- **3 dependencies** — next, react, react-dom. That's it. No third-party gamepad libraries
+
+### Verify it yourself (< 5 minutes)
+
+```bash
+# 1. Check for dangerous patterns (should return 0 matches)
+grep -rn "eval\|innerHTML\|dangerouslySetInnerHTML\|document\.write" packages/ apps/web/app/
+
+# 2. Check for secrets (should return 0 matches)
+grep -rn "secret\|apiKey\|private_key\|password" packages/ apps/web/app/
+
+# 3. Audit dependencies
+pnpm audit          # 0 vulnerabilities
+
+# 4. Count the code
+find packages/core/src -name "*.ts" -o -name "*.tsx" | xargs wc -l
+# ~1,800 lines total — fully readable in one sitting
+```
+
+The entire source is open, unminified, and auditable. Read [SECURITY.md](SECURITY.md) for the file-by-file breakdown.
+
+---
+
 ## License
 
 MIT — by [I.O.](https://iozone.dev) / Sol-HQ
