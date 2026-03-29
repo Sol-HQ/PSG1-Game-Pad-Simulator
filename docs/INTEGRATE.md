@@ -1,6 +1,6 @@
 # PSG1 — Integration Guide for Solana Game Devs
 
-> **Canonical hardware spec:** [`packages/core/src/lib/psg1-hardware.ts`](../packages/core/src/lib/psg1-hardware.ts)
+> **Canonical hardware spec:** [`packages/core/src/lib/psg1-hardware.ts`](../packages/core/src/lib/psg1-hardware.ts)  
 > All button definitions, indices, categories, and device specs are defined there.
 > Import constants (`BTN_A`, `PSG1_BUTTONS`, etc.) from `@psg1/core` in your code.
 
