@@ -1,6 +1,6 @@
 # PSG1 Hardware Resources — PADSIM PSG1
 
-This folder contains PSG1 hardware references and PlayGate submission guidance
+PSG1 hardware references, controller map, and PlayGate submission guidance
 for deploying a web game to the PSG1 console.
 
 ## Files
