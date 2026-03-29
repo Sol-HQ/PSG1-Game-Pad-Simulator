@@ -1,6 +1,6 @@
 # Security Audit — PADSIM PSG1
 
-> Last audited: 2026-03-26
+> Last audited: 2026-03-29
 > Auditor: GitHub Copilot (Claude Opus 4.6)
 > Scope: Every file in `packages/core/src/`, `apps/web/app/`, all configs
 > Result: **CLEAN — 0 vulnerabilities found**
