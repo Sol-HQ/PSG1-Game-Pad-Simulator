@@ -11,7 +11,7 @@
 
 **Name:** PADSIM PSG1  
 **Repo:** `Sol-HQ/PSG1-Game-Pad-Simulator`  
-**Owner:** Sol-HQ (GitHub org) / I.O. (iozone.dev)  
+**Owner:** Sol-HQ (GitHub org)  
 **Version:** v0.1.0  
 **License:** MIT  
 **Live demo:** https://psg-1-game-pad-simulator-web.vercel.app  

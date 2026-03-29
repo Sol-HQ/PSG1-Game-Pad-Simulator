@@ -331,4 +331,4 @@ The entire source is open, unminified, and auditable. Read [SECURITY.md](SECURIT
 
 ## License
 
-MIT — by [I.O.](https://iozone.dev) / Sol-HQ
+MIT — by Sol-HQ

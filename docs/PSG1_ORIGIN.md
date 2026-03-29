@@ -469,7 +469,7 @@ The repo is currently at **v0.1.0** — functional but not yet a proper npm pack
 | CSS Top Layer (MDN) | https://developer.mozilla.org/docs/Glossary/Top_layer |
 | dialog.showModal() spec | https://developer.mozilla.org/docs/Web/HTML/Element/dialog |
 | R.P.S. v2 (origin) | https://github.com/Sol-HQ/R.P.S.v.2 |
-| I.O. / iozone.dev | https://iozone.dev |
+| Sol-HQ | https://github.com/Sol-HQ |
 | PSG1 Simulator Demo | https://github.com/Sol-HQ/PSG1-Game-Pad-Simulator |
 
 ---
